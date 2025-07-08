@@ -1,24 +1,36 @@
-#  Template python-build
+# Template python-build
 
-#  This template allows you to validate your python code.
-#  The workflow allows running tests and code linting on the default branch.
+# This template allows you to validate your python code.
+# The workflow allows running tests, linting, typing, and formatting checks.
 
 image: python:3.8
 
 pipelines:
   default:
     - parallel:
-      - step:
-          name: Test
-          caches:
-            - pip
-          script:
-            - if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-            - pip install pytest
-            - pytest -v tests/* --junitxml=test-reports/report.xml
-      - step:
-          name: Lint code
-          script:
-            # Enforce style consistency across Python projects https://flake8.pycqa.org
-            - pip install flake8
-            - flake8 . --extend-exclude=dist,build --show-source --statistics
+        - step:
+            name: Run Tests with Coverage
+            caches:
+              - pip
+            script:
+              - pip install -r requirements.txt
+              - pip install pytest pytest-cov
+              - pytest --cov=./ --cov-report=xml --junitxml=test-reports/report.xml
+
+        - step:
+            name: Lint Code (flake8 + async + style checks)
+            script:
+              - pip install flake8 flake8-async flake8-bugbear flake8-docstrings
+              - flake8 . --extend-exclude=dist,build --show-source --statistics
+
+        - step:
+            name: Type Check (mypy)
+            script:
+              - pip install mypy
+              - mypy .
+
+        - step:
+            name: Code Formatter (Black Check)
+            script:
+              - pip install black
+              - black . --check
