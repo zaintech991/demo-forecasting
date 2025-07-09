@@ -104,7 +104,9 @@ def test_mappings():
     ORDER BY avg_sale_amount DESC
     LIMIT 10;
     """
-    stores = pd.read_sql_query(store_query, engine)
+    with engine.connect() as conn:
+        stores = pd.read_sql_query(store_query, conn)
+
     
     for _, store in stores.iterrows():
         store_name = get_store_name(store['city_id'], store['store_id'], store['avg_sale_amount'])
