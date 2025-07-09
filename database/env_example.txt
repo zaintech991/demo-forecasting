@@ -1,0 +1,13 @@
+# Supabase Connection Settings
+SUPABASE_URL=https://your-project-id.supabase.co
+SUPABASE_KEY=your-supabase-anon-key
+
+# PostgreSQL Database Connection
+DB_HOST=db.your-project-id.supabase.co
+DB_PORT=5432
+DB_NAME=postgres
+DB_USER=postgres
+DB_PASSWORD=your-database-password
+
+# Dataset Settings
+HUGGINGFACE_TOKEN=your-huggingface-token  # Optional, only needed if dataset is private 
