@@ -2,10 +2,12 @@ import asyncpg  # type: ignore
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 
+
 class PromotionRepository:
     """
     Async repository for promotion CRUD and query operations using asyncpg.
     """
+
     def __init__(self, dsn: str):
         self.dsn = dsn
 
@@ -39,7 +41,9 @@ class PromotionRepository:
             )
             return dict(row) if row else {}
 
-    async def update_promotion(self, promotion_id: int, update_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    async def update_promotion(
+        self, promotion_id: int, update_data: Dict[str, Any]
+    ) -> Optional[Dict[str, Any]]:
         """
         Update an existing promotion by ID.
         Returns the updated promotion record, or None if not found.
@@ -100,7 +104,7 @@ class PromotionRepository:
         category_id: Optional[int] = None,
         start_date: Optional[datetime] = None,
         end_date: Optional[datetime] = None,
-        active: Optional[bool] = None
+        active: Optional[bool] = None,
     ) -> List[Dict[str, Any]]:
         """
         List promotions with optional filters.
@@ -148,4 +152,4 @@ class PromotionRepository:
         base_query += " ORDER BY pe.start_date DESC"
         async with await self.get_connection() as conn:
             rows = await conn.fetch(base_query, *values)
-            return [dict(row) for row in rows] 
+            return [dict(row) for row in rows]

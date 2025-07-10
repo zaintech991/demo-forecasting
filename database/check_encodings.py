@@ -1,28 +1,31 @@
 """
 Script to analyze encoded values in the FreshRetailNet-50K dataset.
 """
+
 import os
 import pandas as pd
 from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
 
+
 def get_db_connection():
     """Create database connection using environment variables."""
     db_params = {
-        'host': os.getenv('DB_HOST', 'localhost'),
-        'port': os.getenv('DB_PORT', '5432'),
-        'database': os.getenv('DB_NAME', 'freshretail'),
-        'user': os.getenv('DB_USER', 'postgres'),
-        'password': os.getenv('DB_PASSWORD', 'boolmind')
+        "host": os.getenv("DB_HOST", "localhost"),
+        "port": os.getenv("DB_PORT", "5432"),
+        "database": os.getenv("DB_NAME", "freshretail"),
+        "user": os.getenv("DB_USER", "postgres"),
+        "password": os.getenv("DB_PASSWORD", "boolmind"),
     }
-    
+
     connection_string = f"postgresql://{db_params['user']}:{db_params['password']}@{db_params['host']}:{db_params['port']}/{db_params['database']}"
     return create_engine(connection_string)
+
 
 def analyze_encodings():
     """Analyze encoded values in the dataset."""
     engine = get_db_connection()
-    
+
     # Check city distribution
     print("\n=== City Analysis ===")
     city_query = """
@@ -38,7 +41,7 @@ def analyze_encodings():
     ORDER BY city_id;
     """
     print(pd.read_sql_query(city_query, engine))
-    
+
     # Check store distribution within cities
     print("\n=== Store Distribution ===")
     store_query = """
@@ -52,7 +55,7 @@ def analyze_encodings():
     ORDER BY city_id;
     """
     print(pd.read_sql_query(store_query, engine))
-    
+
     # Check product category hierarchy
     print("\n=== Product Category Hierarchy ===")
     category_query = """
@@ -76,7 +79,7 @@ def analyze_encodings():
         third_category_id;
     """
     print(pd.read_sql_query(category_query, engine))
-    
+
     # Check product sales patterns
     print("\n=== Product Sales Patterns ===")
     product_query = """
@@ -98,5 +101,6 @@ def analyze_encodings():
     """
     print(pd.read_sql_query(product_query, engine))
 
+
 if __name__ == "__main__":
-    analyze_encodings() 
+    analyze_encodings()

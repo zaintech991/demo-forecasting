@@ -1,6 +1,7 @@
 """
 Script to run SQL queries and explore the FreshRetailNet-50K dataset.
 """
+
 import os
 from pathlib import Path
 import pandas as pd
@@ -10,42 +11,45 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+
 def get_db_connection():
     """Create database connection using environment variables."""
     db_params = {
-        'host': os.getenv('DB_HOST', 'localhost'),
-        'port': os.getenv('DB_PORT', '5432'),
-        'database': os.getenv('DB_NAME', 'freshretail'),
-        'user': os.getenv('DB_USER', 'postgres'),
-        'password': os.getenv('DB_PASSWORD', 'boolmind')
+        "host": os.getenv("DB_HOST", "localhost"),
+        "port": os.getenv("DB_PORT", "5432"),
+        "database": os.getenv("DB_NAME", "freshretail"),
+        "user": os.getenv("DB_USER", "postgres"),
+        "password": os.getenv("DB_PASSWORD", "boolmind"),
     }
-    
+
     connection_string = f"postgresql://{db_params['user']}:{db_params['password']}@{db_params['host']}:{db_params['port']}/{db_params['database']}"
     return create_engine(connection_string)
+
 
 def run_query(query, engine=None):
     """Run a SQL query and return results as a pandas DataFrame."""
     if engine is None:
         engine = get_db_connection()
-    
+
     print("\nExecuting query:")
     print("-" * 80)
     print(query)
     print("-" * 80)
-    
+
     result = pd.read_sql_query(query, engine)
-    
+
     print("\nResults:")
     print("-" * 80)
     print(result)
     print(f"\nTotal rows: {len(result)}")
-    
+
     return result
+
 
 def main():
     """Run example queries to explore the data."""
     engine = get_db_connection()
-    
+
     # Example queries
     queries = {
         "Basic Sales Stats": """
@@ -59,7 +63,6 @@ def main():
                 AVG(sale_amount) as avg_sale_amount
             FROM sales_data;
         """,
-        
         "Top 10 Products by Sales": """
             SELECT 
                 p.product_id,
@@ -73,7 +76,6 @@ def main():
             ORDER BY total_sales DESC
             LIMIT 10;
         """,
-        
         "Store Performance": """
             SELECT 
                 s.store_id,
@@ -87,7 +89,6 @@ def main():
             ORDER BY avg_daily_sales DESC
             LIMIT 10;
         """,
-        
         "Weather Impact": """
             SELECT 
                 CASE 
@@ -108,7 +109,6 @@ def main():
                 END
             ORDER BY avg_sales DESC;
         """,
-        
         "Holiday vs Non-Holiday Sales": """
             SELECT 
                 holiday_flag,
@@ -118,9 +118,9 @@ def main():
                 COUNT(DISTINCT store_id) as stores_with_sales
             FROM sales_data
             GROUP BY holiday_flag;
-        """
+        """,
     }
-    
+
     # Run each query
     for title, query in queries.items():
         print(f"\n{'=' * 80}")
@@ -128,5 +128,6 @@ def main():
         print(f"{'=' * 80}")
         run_query(query, engine)
 
+
 if __name__ == "__main__":
-    main() 
+    main()

@@ -23,7 +23,7 @@ CITY_MAPPING = {
     14: {"name": "Indianapolis", "state": "IN", "region": "Midwest"},
     15: {"name": "Charlotte", "state": "NC", "region": "South"},
     16: {"name": "San Francisco", "state": "CA", "region": "West"},
-    17: {"name": "Seattle", "state": "WA", "region": "West"}
+    17: {"name": "Seattle", "state": "WA", "region": "West"},
 }
 
 # Map store IDs to realistic store names and metadata
@@ -47,7 +47,7 @@ STORE_MAPPING = {
     16: {"name": "Airport Express", "format": "Convenience", "size": "Small"},
     17: {"name": "Business District Mart", "format": "Supermarket", "size": "Medium"},
     18: {"name": "Mall Market", "format": "Supermarket", "size": "Small"},
-    19: {"name": "Beach Road Foods", "format": "Supermarket", "size": "Medium"}
+    19: {"name": "Beach Road Foods", "format": "Supermarket", "size": "Medium"},
 }
 
 # Mapping for product categories (first level)
@@ -64,7 +64,7 @@ FIRST_CATEGORY_MAPPING = {
     9: "Household & Cleaning",
     10: "Personal Care",
     11: "Health & Wellness",
-    12: "Pet Supplies"
+    12: "Pet Supplies",
 }
 
 # Example mapping for management groups
@@ -74,14 +74,15 @@ MANAGEMENT_GROUP_MAPPING = {
     2: "Midwest Division",
     3: "Southwest Division",
     4: "Western Division",
-    5: "National Operations"
+    5: "National Operations",
 }
+
 
 # Convert numeric to percent discount for better UI display
 def discount_to_percent(discount_rate):
     """Convert discount rate (where 1.0 is no discount) to percentage off"""
     if discount_rate >= 1.0:
         return "0%"
-    
+
     percent_off = int(round((1.0 - discount_rate) * 100))
-    return f"{percent_off}%" 
+    return f"{percent_off}%"

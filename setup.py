@@ -1,15 +1,16 @@
 """
 Setup script for FreshRetail Forecasting.
 """
+
 import os
 from setuptools import setup, find_packages
 
 # Read requirements from requirements.txt
-with open('requirements.txt') as f:
+with open("requirements.txt") as f:
     requirements = f.read().splitlines()
 
 # Read long description from README.md
-with open('README.md', 'r') as f:
+with open("README.md", "r") as f:
     long_description = f.read()
 
 setup(
@@ -35,11 +36,11 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
     ],
-    python_requires='>=3.8',
+    python_requires=">=3.8",
     entry_points={
-        'console_scripts': [
-            'freshretail-api=app.main:main',
-            'freshretail-load-data=scripts.load_data:main',
+        "console_scripts": [
+            "freshretail-api=app.main:main",
+            "freshretail-load-data=scripts.load_data:main",
         ],
     },
-) 
+)
