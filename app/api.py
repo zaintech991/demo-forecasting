@@ -63,19 +63,27 @@ async def root():
 
 @app.get("/cities")
 async def get_cities(conn=Depends(get_db_connection)):
-    rows = await conn.fetch("SELECT city_id, city_name FROM city_hierarchy ORDER BY city_name")
+    rows = await conn.fetch(
+        "SELECT city_id, city_name FROM city_hierarchy ORDER BY city_name"
+    )
     await conn.close()
     return [dict(row) for row in rows]
+
 
 @app.get("/stores")
 async def get_stores(conn=Depends(get_db_connection)):
-    rows = await conn.fetch("SELECT s.store_id, s.store_name, s.city_id, c.city_name FROM store_hierarchy s LEFT JOIN city_hierarchy c ON s.city_id = c.city_id ORDER BY s.store_name")
+    rows = await conn.fetch(
+        "SELECT s.store_id, s.store_name, s.city_id, c.city_name FROM store_hierarchy s LEFT JOIN city_hierarchy c ON s.city_id = c.city_id ORDER BY s.store_name"
+    )
     await conn.close()
     return [dict(row) for row in rows]
 
+
 @app.get("/products")
 async def get_products(conn=Depends(get_db_connection)):
-    rows = await conn.fetch("SELECT product_id, product_name FROM product_hierarchy ORDER BY product_name")
+    rows = await conn.fetch(
+        "SELECT product_id, product_name FROM product_hierarchy ORDER BY product_name"
+    )
     await conn.close()
     return [dict(row) for row in rows]
 
@@ -469,7 +477,7 @@ async def stockout_risk_get(
 
 @app.get("/valid-combinations")
 async def get_valid_combinations(conn=Depends(get_db_connection)):
-    query = '''
+    query = """
     SELECT DISTINCT 
         sh.city_id, 
         ch.city_name, 
@@ -481,7 +489,7 @@ async def get_valid_combinations(conn=Depends(get_db_connection)):
     JOIN store_hierarchy sh ON sd.store_id = sh.store_id
     JOIN product_hierarchy ph ON sd.product_id = ph.product_id
     LEFT JOIN city_hierarchy ch ON sh.city_id = ch.city_id
-    '''
+    """
     rows = await conn.fetch(query)
     await conn.close()
     return [dict(row) for row in rows]

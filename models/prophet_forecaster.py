@@ -19,7 +19,7 @@ class ProphetForecaster:
             weekly_seasonality=True,
             yearly_seasonality=True,
             seasonality_mode="additive",  # Changed to additive
-            growth="logistic"  # Added logistic growth to enforce non-negative values
+            growth="logistic",  # Added logistic growth to enforce non-negative values
         )
 
         self.include_weather = include_weather
@@ -40,9 +40,13 @@ class ProphetForecaster:
 
         if self.include_promotions:
             if "discount" in df.columns:
-                self.model.add_regressor("discount", mode="additive")  # Changed to additive
+                self.model.add_regressor(
+                    "discount", mode="additive"
+                )  # Changed to additive
             if "activity_flag" in df.columns:
-                self.model.add_regressor("activity_flag", mode="additive")  # Changed to additive
+                self.model.add_regressor(
+                    "activity_flag", mode="additive"
+                )  # Changed to additive
 
         return df
 
@@ -81,7 +85,9 @@ class ProphetForecaster:
             forecast_df["ds"] = pd.to_datetime(forecast_df["ds"])
 
         # Set carrying capacity for logistic growth
-        max_sales = forecast_df["y"].max() * 1.5  # Set cap at 150% of max historical sales
+        max_sales = (
+            forecast_df["y"].max() * 1.5
+        )  # Set cap at 150% of max historical sales
         forecast_df["cap"] = max_sales
         forecast_df["floor"] = 0  # Set minimum at 0 to prevent negative values
 

@@ -246,9 +246,11 @@ async def fetch_historical_data(
     # Convert date strings to datetime.date objects for asyncpg
     if start_date is not None and isinstance(start_date, str):
         from datetime import datetime
+
         start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
     if end_date is not None and isinstance(end_date, str):
         from datetime import datetime
+
         end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
 
     query = """
@@ -299,7 +301,11 @@ async def fetch_historical_data(
         idx += 1
     query += " ORDER BY sd.dt"
     records = await conn.fetch(query, *params)
-    df = pd.DataFrame(records, columns=[k for k in records[0].keys()]) if records else pd.DataFrame()
+    df = (
+        pd.DataFrame(records, columns=[k for k in records[0].keys()])
+        if records
+        else pd.DataFrame()
+    )
 
     # Ensure all required columns are present
     required_cols = [
@@ -317,16 +323,23 @@ async def fetch_historical_data(
         "precpt",
         "avg_temperature",
         "avg_humidity",
-        "avg_wind_level"
+        "avg_wind_level",
     ]
     for col in required_cols:
         if col not in df.columns:
             if col in ["promo_flag", "holiday_flag"]:
                 df[col] = False
-            elif col in ["sale_amount", "discount", "precpt", "avg_temperature", "avg_humidity"]:
+            elif col in [
+                "sale_amount",
+                "discount",
+                "precpt",
+                "avg_temperature",
+                "avg_humidity",
+            ]:
                 df[col] = 0.0
             elif col == "created_at":
                 from datetime import datetime
+
                 df[col] = datetime.now()
             elif col == "avg_wind_level":
                 df[col] = 0
