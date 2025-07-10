@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retail Sales Forecasting</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
+    <link href="/static/lib/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+            background-color: #f8f9fa;
+        }
+        .card {
+            margin-bottom: 1.5rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+        }
+        .chart-container {
+            height: 300px;
+            margin-top: 1rem;
+        }
+        .result-section {
+            display: none;
+            margin-top: 1.5rem;
+        }
+        .tab-content {
+            padding: 1.5rem;
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-top: none;
+            border-radius: 0 0 0.25rem 0.25rem;
+        }
+        .risk-meter {
+            width: 100%;
+            height: 30px;
+            background: linear-gradient(to right, #28a745, #ffc107, #dc3545);
+            border-radius: 15px;
+            position: relative;
+            margin: 1rem 0;
+        }
+        .risk-indicator {
+            width: 20px;
+            height: 20px;
+            background-color: #000;
+            border-radius: 50%;
+            position: absolute;
+            top: 5px;
+            transform: translateX(-50%);
+        }
+        .recommendation-card {
+            border-left: 4px solid #0d6efd;
+            margin-bottom: 1rem;
+        }
+        .custom-select-container {
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="mb-4 text-center">
+            <h1 class="display-4">Retail Sales Forecasting</h1>
+            <p class="lead">Analyze sales data, predict trends, and optimize inventory</p>
+        </header>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">Input Parameters</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="forecast-form">
+                            <div class="mb-3">
+                                <label for="citySelect" class="form-label">City</label>
+                                <select class="form-select" id="citySelect" required>
+                                    <option value="" disabled>Select city</option>
+                                    <option value="0" selected>New York, NY</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="storeSelect" class="form-label">Store</label>
+                                <select class="form-select" id="storeSelect" required>
+                                    <option value="" disabled>Select store</option>
+                                    <option value="0" selected>Downtown Market</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="productSelect" class="form-label">Product</label>
+                                <select class="form-select" id="productSelect" required>
+                                    <option value="" disabled>Select product</option>
+                                    <option value="4">Fresh Apples</option>
+                                    <option value="6">Organic Milk</option>
+                                    <option value="18">Whole Wheat Bread</option>
+                                    <option value="19">Sparkling Water</option>
+                                    <option value="21" selected>Premium Coffee</option>
+                                    <option value="23">Fresh Bananas</option>
+                                    <option value="26">Organic Eggs</option>
+                                    <option value="38">Fresh Tomatoes</option>
+                                    <option value="41">Organic Yogurt</option>
+                                    <option value="70">Fresh Lettuce</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="forecastDays" class="form-label">Forecast Days</label>
+                                <input type="range" class="form-range" min="7" max="60" step="1" value="30" id="forecastDays">
+                                <div class="d-flex justify-content-between">
+                                    <span>7 days</span>
+                                    <span id="daysValue">30 days</span>
+                                    <span>60 days</span>
+                                </div>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">Generate Analysis</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="card-title mb-0">API Documentation</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Access our API directly:</p>
+                        <ul>
+                            <li><a href="/docs" target="_blank">Interactive API Docs</a></li>
+                            <li><a href="/api/forecast/0/0/38" target="_blank">Sample Forecast</a></li>
+                            <li><a href="/api/promotions/impact/0/38" target="_blank">Sample Promotion Analysis</a></li>
+                            <li><a href="/api/stockout/risk/0/38" target="_blank">Sample Stockout Risk</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div id="loading" class="text-center p-5" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading analysis data...</p>
+                </div>
+
+                <div id="results" class="result-section">
+                    <ul class="nav nav-tabs" id="analysisTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="forecast-tab" data-bs-toggle="tab" data-bs-target="#forecast" type="button" role="tab" onclick="showTab('forecast')">Sales Forecast</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="promotions-tab" data-bs-toggle="tab" data-bs-target="#promotions" type="button" role="tab" onclick="showTab('promotions')">Promotion Analysis</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="stockout-tab" data-bs-toggle="tab" data-bs-target="#stockout" type="button" role="tab" onclick="showTab('stockout')">Stockout Risk</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="analysisTabContent">
+                        <div class="tab-pane fade show active" id="forecast" role="tabpanel">
+                            <h4>Sales Forecast</h4>
+                            <p id="forecast-summary" class="lead"></p>
+                            <div class="chart-container">
+                                <canvas id="forecastChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="promotions" role="tabpanel">
+                            <h4>Promotion Impact Analysis</h4>
+                            <p id="promotion-summary" class="lead"></p>
+                            <h5 class="mt-4">Recommendations</h5>
+                            <div id="promotion-recommendations"></div>
+                        </div>
+                        <div class="tab-pane fade" id="stockout" role="tabpanel">
+                            <h4>Stockout Risk Assessment</h4>
+                            <p id="stockout-summary" class="lead"></p>
+                            
+                            <div class="card mt-3">
+                                <div class="card-body">
+                                    <h5>Risk Score</h5>
+                                    <div class="risk-meter">
+                                        <div class="risk-indicator" id="risk-indicator"></div>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Low</span>
+                                        <span>Medium</span>
+                                        <span>High</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5>Risk Factors</h5>
+                                            <div id="risk-factors"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5>Recommended Stock Levels</h5>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm table-hover">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Date</th>
+                                                            <th>Min</th>
+                                                            <th>Target</th>
+                                                            <th>Max</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="stock-levels"></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/lib/bootstrap.bundle.min.js"></script>
+    <script src="/static/lib/chart.min.js"></script>
+    <script>
+        // Dynamically populate city, store, and product dropdowns from API
+        document.addEventListener('DOMContentLoaded', function() {
+            // Populate City Dropdown
+            fetch('/api/cities')
+              .then(res => res.json())
+              .then(cities => {
+                const citySelect = document.getElementById('citySelect');
+                citySelect.innerHTML = '<option value="" disabled selected>Select city</option>';
+                cities.forEach(city => {
+                  const option = document.createElement('option');
+                  option.value = city.city_id;
+                  option.text = city.city_name;
+                  citySelect.appendChild(option);
+                });
+              });
+
+            // Populate Store Dropdown
+            fetch('/api/stores')
+              .then(res => res.json())
+              .then(stores => {
+                const storeSelect = document.getElementById('storeSelect');
+                storeSelect.innerHTML = '<option value="" disabled selected>Select store</option>';
+                stores.forEach(store => {
+                  const option = document.createElement('option');
+                  option.value = store.store_id;
+                  option.text = `${store.store_name} (${store.city_name || 'Unknown City'})`;
+                  storeSelect.appendChild(option);
+                });
+              });
+
+            // Populate Product Dropdown
+            fetch('/api/products')
+              .then(res => res.json())
+              .then(products => {
+                const productSelect = document.getElementById('productSelect');
+                productSelect.innerHTML = '<option value="" disabled selected>Select product</option>';
+                products.forEach(product => {
+                  const option = document.createElement('option');
+                  option.value = product.product_id;
+                  option.text = product.product_name;
+                  productSelect.appendChild(option);
+                });
+              });
+        });
+
+        // Check if Bootstrap is loaded
+        if (typeof bootstrap === 'undefined') {
+            console.warn('DEBUG: Bootstrap is not loaded. Some UI features may not work properly.');
+        }
+
+        // Update the days value display
+        const daysSlider = document.getElementById('forecastDays');
+        const daysValue = document.getElementById('daysValue');
+        daysSlider.addEventListener('input', () => {
+            daysValue.textContent = daysSlider.value + ' days';
+        });
+
+        // Forecast chart instance
+        let forecastChart = null;
+        
+        // Fallback tab function in case Bootstrap fails
+        function showTab(tabName) {
+            // Hide all tab content
+            const tabContents = document.querySelectorAll('.tab-pane');
+            tabContents.forEach(content => {
+                content.classList.remove('show', 'active');
+            });
+            
+            // Remove active class from all tab buttons
+            const tabButtons = document.querySelectorAll('.nav-link');
+            tabButtons.forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            const selectedTab = document.getElementById(tabName);
+            if (selectedTab) {
+                selectedTab.classList.add('show', 'active');
+            }
+            
+            // Activate selected tab button
+            const selectedButton = document.querySelector(`[onclick="showTab('${tabName}')"]`);
+            if (selectedButton) {
+                selectedButton.classList.add('active');
+            }
+        }
+
+        // Form submission handler
+        document.getElementById('forecast-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const cityId = document.getElementById('citySelect').value;
+            const storeId = document.getElementById('storeSelect').value;
+            const productId = document.getElementById('productSelect').value;
+            const days = document.getElementById('forecastDays').value;
+            
+            // Show loading indicator
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            
+            try {
+                console.log('DEBUG: Starting form submission with values:', {cityId, storeId, productId, days});
+                
+                // Fetch data from all three endpoints in parallel
+                const [forecastData, promotionData, stockoutData] = await Promise.allSettled([
+                    fetchForecastData(cityId, storeId, productId, days),
+                    fetchPromotionData(storeId, productId),
+                    fetchStockoutData(storeId, productId)
+                ]);
+                
+                console.log('DEBUG: Promise results:', {
+                    forecast: {status: forecastData.status, value: forecastData.value},
+                    promotion: {status: promotionData.status, value: promotionData.value},
+                    stockout: {status: stockoutData.status, value: stockoutData.value}
+                });
+                
+                // Handle results - use fallback data for failed requests
+                const forecastResult = forecastData.status === 'fulfilled' ? forecastData.value : null;
+                const promotionResult = promotionData.status === 'fulfilled' ? promotionData.value : getFallbackPromotionData();
+                const stockoutResult = stockoutData.status === 'fulfilled' ? stockoutData.value : getFallbackStockoutData();
+                
+                console.log('DEBUG: Processed results:', {forecastResult, promotionResult, stockoutResult});
+                
+                // Only show results if we have at least forecast data
+                if (forecastResult) {
+                    console.log('DEBUG: Updating UI with forecast data');
+                    // Update UI with data
+                    updateForecastUI(forecastResult);
+                    updatePromotionUI(promotionResult);
+                    updateStockoutUI(stockoutResult);
+                    
+                    // Show results
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('results').style.display = 'block';
+                    console.log('DEBUG: UI update completed successfully');
+                } else {
+                    console.error('DEBUG: No forecast data available');
+                    throw new Error('Failed to fetch forecast data');
+                }
+            } catch (error) {
+                console.error('DEBUG: Error in form submission:', error);
+                console.error('DEBUG: Error stack:', error.stack);
+                alert('Error fetching data. Please try again.');
+                document.getElementById('loading').style.display = 'none';
+            }
+        });
+
+        // Fetch data from API endpoints
+        async function fetchForecastData(cityId, storeId, productId, days) {
+            console.log('DEBUG: Fetching forecast data for:', {cityId, storeId, productId, days});
+            const response = await fetch(`/api/forecast/${cityId}/${storeId}/${productId}?days=${days}`);
+            console.log('DEBUG: Forecast response status:', response.status);
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('DEBUG: Forecast response error:', errorText);
+                throw new Error('Failed to fetch forecast data');
+            }
+            const data = await response.json();
+            console.log('DEBUG: Received forecast data:', data);
+            return data;
+        }
+        
+        async function fetchPromotionData(storeId, productId) {
+            console.log('DEBUG: Fetching promotion data for:', {storeId, productId});
+            const response = await fetch(`/api/promotions/impact/${storeId}/${productId}`);
+            console.log('DEBUG: Promotion response status:', response.status);
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('DEBUG: Promotion response error:', errorText);
+                throw new Error('Failed to fetch promotion data');
+            }
+            const data = await response.json();
+            console.log('DEBUG: Received promotion data:', data);
+            return data;
+        }
+        
+        async function fetchStockoutData(storeId, productId) {
+            console.log('DEBUG: Fetching stockout data for:', {storeId, productId});
+            const response = await fetch(`/api/stockout/risk/${storeId}/${productId}`);
+            console.log('DEBUG: Stockout response status:', response.status);
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('DEBUG: Stockout response error:', errorText);
+                throw new Error('Failed to fetch stockout data');
+            }
+            const data = await response.json();
+            console.log('DEBUG: Received stockout data:', data);
+            return data;
+        }
+
+                // Update UI functions
+        function updateForecastUI(data) {
+            console.log('DEBUG: Updating forecast UI with data:', data);
+            // Defensive check for valid forecast data
+            if (!data || !Array.isArray(data.forecasted_values)) {
+                document.getElementById('forecast-summary').textContent = "No forecast data available for this selection.";
+                // Optionally clear chart
+                if (forecastChart) { forecastChart.destroy(); forecastChart = null; }
+                return;
+            }
+            
+            // Update summary
+            const storeName = document.getElementById('storeSelect').options[document.getElementById('storeSelect').selectedIndex].text;
+            const productName = document.getElementById('productSelect').options[document.getElementById('productSelect').selectedIndex].text;
+            
+            // Calculate statistics from forecasted_values array
+            const totalSales = data.forecasted_values.reduce((sum, val) => sum + val, 0).toFixed(2);
+            const avgSales = (data.forecasted_values.reduce((sum, val) => sum + val, 0) / data.forecasted_values.length).toFixed(2);
+            
+            document.getElementById('forecast-summary').textContent = 
+                `Forecast for ${productName} at ${storeName}: Total sales of ${totalSales} units with daily average of ${avgSales} units.`;
+            
+            // Check if Chart.js is available
+            if (typeof Chart === 'undefined') {
+                console.error('DEBUG: Chart.js is not loaded. Showing fallback message.');
+                document.getElementById('forecastChart').innerHTML = `
+                    <div class="alert alert-warning">
+                        <h5>Chart Unavailable</h5>
+                        <p>Chart.js library failed to load. Here are the forecast values:</p>
+                        <ul>
+                            ${data.forecasted_values.slice(0, 10).map((val, i) => 
+                                `<li>Day ${i+1}: ${val.toFixed(2)} units</li>`
+                            ).join('')}
+                            ${data.forecasted_values.length > 10 ? `<li>... and ${data.forecasted_values.length - 10} more days</li>` : ''}
+                        </ul>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Update chart
+            try {
+                const ctx = document.getElementById('forecastChart').getContext('2d');
+                console.log('DEBUG: Chart context obtained');
+                
+                // Destroy previous chart instance if it exists
+                if (forecastChart) {
+                    console.log('DEBUG: Destroying previous chart');
+                    forecastChart.destroy();
+                }
+                
+                console.log('DEBUG: Creating new chart with data:', {
+                    labels: data.dates,
+                    datasets: [
+                        {label: 'Forecast', data: data.forecasted_values},
+                        {label: 'Upper Bound', data: data.confidence_intervals_upper},
+                        {label: 'Lower Bound', data: data.confidence_intervals_lower}
+                    ]
+                });
+                
+                forecastChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.dates,
+                        datasets: [
+                            {
+                                label: 'Forecast',
+                                data: data.forecasted_values,
+                                borderColor: 'rgb(54, 162, 235)',
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                borderWidth: 2,
+                                tension: 0.3
+                            },
+                            {
+                                label: 'Upper Bound',
+                                data: data.confidence_intervals_upper,
+                                borderColor: 'rgba(54, 162, 235, 0.3)',
+                                backgroundColor: 'rgba(54, 162, 235, 0)',
+                                borderWidth: 1,
+                                borderDash: [5, 5],
+                                pointRadius: 0
+                            },
+                            {
+                                label: 'Lower Bound',
+                                data: data.confidence_intervals_lower,
+                                borderColor: 'rgba(54, 162, 235, 0.3)',
+                                backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                                borderWidth: 1,
+                                borderDash: [5, 5],
+                                pointRadius: 0,
+                                fill: {
+                                    target: '+1',
+                                    above: 'rgba(54, 162, 235, 0.1)'
+                                }
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                ticks: {
+                                    maxTicksLimit: 10
+                                }
+                            }
+                        }
+                    }
+                });
+                console.log('DEBUG: Chart created successfully');
+            } catch (chartError) {
+                console.error('DEBUG: Error creating chart:', chartError);
+                throw chartError;
+            }
+        }
+        
+        function updatePromotionUI(data) {
+            // Update summary
+            const storeName = document.getElementById('storeSelect').options[document.getElementById('storeSelect').selectedIndex].text;
+            const productName = document.getElementById('productSelect').options[document.getElementById('productSelect').selectedIndex].text;
+            
+            document.getElementById('promotion-summary').textContent = 
+                `Historical promotions for ${productName} at ${storeName} have shown an average uplift of ${data.uplift_percent}%.`;
+            
+            // Update recommendations
+            const recommendationsContainer = document.getElementById('promotion-recommendations');
+            recommendationsContainer.innerHTML = '';
+            
+            data.recommendations.forEach(rec => {
+                const card = document.createElement('div');
+                card.className = 'card recommendation-card mb-3';
+                card.innerHTML = `
+                    <div class="card-body">
+                        <h5 class="card-title">${rec.discount}% Discount for ${rec.duration_days} Days</h5>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <p class="mb-1">Estimated Uplift:</p>
+                                <h5 class="text-success">+${rec.estimated_uplift}%</h5>
+                            </div>
+                            <div class="col-md-4">
+                                <p class="mb-1">Incremental Sales:</p>
+                                <h5>${rec.incremental_sales} units</h5>
+                            </div>
+                            <div class="col-md-4">
+                                <p class="mb-1">ROI:</p>
+                                <h5 class="text-primary">${rec.roi}</h5>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                recommendationsContainer.appendChild(card);
+            });
+        }
+        
+        function updateStockoutUI(data) {
+            // Update summary
+            const storeName = document.getElementById('storeSelect').options[document.getElementById('storeSelect').selectedIndex].text;
+            const productName = document.getElementById('productSelect').options[document.getElementById('productSelect').selectedIndex].text;
+            
+            // Set risk level description based on score
+            let riskLevel = "low";
+            if (data.risk_score > 70) riskLevel = "high";
+            else if (data.risk_score > 30) riskLevel = "medium";
+            
+            document.getElementById('stockout-summary').textContent = 
+                `${productName} at ${storeName} has a ${riskLevel} risk (${data.risk_score}/100) of stockout in the near future.`;
+            
+            // Update risk indicator
+            const riskIndicator = document.getElementById('risk-indicator');
+            riskIndicator.style.left = `${data.risk_score}%`;
+            
+            // Update risk factors
+            const riskFactorsContainer = document.getElementById('risk-factors');
+            riskFactorsContainer.innerHTML = '';
+            
+            Object.entries(data.risk_factors).forEach(([factor, value]) => {
+                // Create a formatted factor name
+                const formattedFactor = factor.split('_')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+                
+                const progressBar = document.createElement('div');
+                progressBar.className = 'mb-3';
+                progressBar.innerHTML = `
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>${formattedFactor}</span>
+                        <span>${Math.round(value * 100)}%</span>
+                    </div>
+                    <div class="progress" style="height: 10px;">
+                        <div class="progress-bar" role="progressbar" style="width: ${value * 100}%" 
+                             aria-valuenow="${value * 100}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                `;
+                riskFactorsContainer.appendChild(progressBar);
+            });
+            
+            // Update stock levels table
+            const stockLevelsTable = document.getElementById('stock-levels');
+            stockLevelsTable.innerHTML = '';
+            
+            data.recommended_stock_levels.forEach(level => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${level.date}</td>
+                    <td>${level.min_stock}</td>
+                    <td><strong>${level.target_stock}</strong></td>
+                    <td>${level.max_stock}</td>
+                `;
+                stockLevelsTable.appendChild(row);
+            });
+        }
+
+        // Fallback data functions
+        function getFallbackPromotionData() {
+            return {
+                uplift_percent: 15.5,
+                recommendations: [
+                    {
+                        discount: 10,
+                        duration_days: 7,
+                        estimated_uplift: 12.5,
+                        incremental_sales: 45,
+                        roi: "2.3x"
+                    },
+                    {
+                        discount: 15,
+                        duration_days: 14,
+                        estimated_uplift: 18.2,
+                        incremental_sales: 78,
+                        roi: "1.8x"
+                    }
+                ]
+            };
+        }
+        
+        function getFallbackStockoutData() {
+            return {
+                risk_score: 25,
+                risk_factors: {
+                    low_stock_levels: 0.15,
+                    high_demand_variance: 0.22,
+                    supply_chain_issues: 0.08,
+                    seasonal_factors: 0.12
+                },
+                recommended_stock_levels: [
+                    {
+                        date: "2025-07-15",
+                        min_stock: 50,
+                        target_stock: 75,
+                        max_stock: 100
+                    },
+                    {
+                        date: "2025-07-22",
+                        min_stock: 45,
+                        target_stock: 70,
+                        max_stock: 95
+                    }
+                ]
+            };
+        }
+    </script>
+</body>
+</html> 

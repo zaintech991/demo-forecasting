@@ -1,0 +1,132 @@
+/* Main Styles for FreshRetail Forecasting App */
+
+body {
+  background-color: #f8f9fa;
+  color: #212529;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* Navigation */
+.navbar {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand i {
+  margin-right: 0.5rem;
+}
+
+/* Page Container */
+.container {
+  max-width: 1400px;
+}
+
+/* Card Styling */
+.card {
+  border: none;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.card-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  font-weight: 600;
+}
+
+/* Pages */
+.page {
+  display: none;
+}
+
+.page.active {
+  display: block;
+}
+
+/* Tables */
+.table {
+  margin-bottom: 0;
+}
+
+.table th {
+  border-top: none;
+  font-weight: 600;
+}
+
+/* Form Controls */
+.form-control:focus, .form-select:focus {
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.form-label {
+  font-weight: 500;
+}
+
+/* Statistics Display */
+.stat-item {
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.stat-item h4 {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+}
+
+.stat-item p {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0;
+}
+
+/* Charts */
+canvas {
+  max-width: 100%;
+}
+
+/* Datepicker Custom Styles */
+.flatpickr-calendar {
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .card-body {
+    padding: 1rem;
+  }
+  
+  .stat-item h4 {
+    font-size: 0.8rem;
+  }
+  
+  .stat-item p {
+    font-size: 1.2rem;
+  }
+}
+
+/* Visual Helpers */
+.bg-light-blue {
+  background-color: #e9f2ff;
+}
+
+.text-primary-dark {
+  color: #0056b3;
+}
+
+/* Loading Indicator */
+.loading-spinner {
+  display: inline-block;
+  width: 2rem;
+  height: 2rem;
+  border: 0.25rem solid rgba(13, 110, 253, 0.3);
+  border-radius: 50%;
+  border-top-color: #0d6efd;
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+} 
