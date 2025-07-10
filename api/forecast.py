@@ -205,7 +205,12 @@ def fetch_historical_data(
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 
-def fetch_weather_data(city_id: Optional[int] = None, start_date: Optional[str] = None, end_date: Optional[str] = None, future_periods: int = 0):
+def fetch_weather_data(
+    city_id: Optional[int] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    future_periods: int = 0,
+):
     """
     Fetch weather data from the database, including future forecasts if available.
 
@@ -360,7 +365,11 @@ def fetch_promotion_data(
         raise HTTPException(status_code=500, detail=f"Promotion data error: {str(e)}")
 
 
-def fetch_holiday_data(start_date: Optional[str] = None, end_date: Optional[str] = None, future_periods: int = 0):
+def fetch_holiday_data(
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    future_periods: int = 0,
+):
     """
     Fetch holiday data from the database.
 
@@ -569,7 +578,15 @@ def create_forecast(
 
         response = {
             "forecast": forecast_data.to_dict(orient="records"),
-            "metrics": model.metrics if isinstance(model.metrics, dict) else (model.metrics.to_dict() if hasattr(model.metrics, 'to_dict') and model.metrics is not None else None),
+            "metrics": (
+                model.metrics
+                if isinstance(model.metrics, dict)
+                else (
+                    model.metrics.to_dict()
+                    if hasattr(model.metrics, "to_dict") and model.metrics is not None
+                    else None
+                )
+            ),
         }
 
         # Add components if requested
@@ -846,7 +863,10 @@ def analyze_holiday_impact(request: HolidayImpactRequest):
             )
 
         # Get holiday data
-        holidays_df = fetch_holiday_data(start_date=start_date.strftime("%Y-%m-%d"), end_date=end_date.strftime("%Y-%m-%d"))
+        holidays_df = fetch_holiday_data(
+            start_date=start_date.strftime("%Y-%m-%d"),
+            end_date=end_date.strftime("%Y-%m-%d"),
+        )
 
         # Filter by holiday name if specified
         if request.holiday_name is not None:
