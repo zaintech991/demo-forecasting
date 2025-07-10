@@ -37,3 +37,4 @@ pandas-stubs==2.1.4.231227
 
 # Miscellaneous
 tqdm==4.66.1
+zipp>=3.19.1 # not directly required, pinned by Snyk to avoid a vulnerability
