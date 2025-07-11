@@ -1,0 +1,242 @@
+[
+  {
+    "city_id": 12,
+    "city_name": "Fort Worth",
+    "store_id": 342,
+    "store_name": "Store_342",
+    "product_id": 71,
+    "product_name": "Figs"
+  },
+  {
+    "city_id": 16,
+    "city_name": "Indianapolis",
+    "store_id": 546,
+    "store_name": "Store_546",
+    "product_id": 387,
+    "product_name": "Napa Cabbage"
+  },
+  {
+    "city_id": 13,
+    "city_name": "Columbus",
+    "store_id": 380,
+    "store_name": "Store_380",
+    "product_id": 402,
+    "product_name": "Breakfast Sausage"
+  },
+  {
+    "city_id": 16,
+    "city_name": "Indianapolis",
+    "store_id": 464,
+    "store_name": "Store_464",
+    "product_id": 354,
+    "product_name": "Garlic Cloves"
+  },
+  {
+    "city_id": 13,
+    "city_name": "Columbus",
+    "store_id": 642,
+    "store_name": "Store_642",
+    "product_id": 531,
+    "product_name": "Beef Stew Meat"
+  },
+  {
+    "city_id": 0,
+    "city_name": "New York",
+    "store_id": 363,
+    "store_name": "Store_363",
+    "product_id": 71,
+    "product_name": "Figs"
+  },
+  {
+    "city_id": 16,
+    "city_name": "Indianapolis",
+    "store_id": 277,
+    "store_name": "Store_277",
+    "product_id": 554,
+    "product_name": "Donuts"
+  },
+  {
+    "city_id": 0,
+    "city_name": "New York",
+    "store_id": 446,
+    "store_name": "Store_446",
+    "product_id": 6,
+    "product_name": "Bagel Chips"
+  },
+  {
+    "city_id": 0,
+    "city_name": "New York",
+    "store_id": 199,
+    "store_name": "Store_199",
+    "product_id": 116,
+    "product_name": "Fish Fillets"
+  },
+  {
+    "city_id": 0,
+    "city_name": "New York",
+    "store_id": 166,
+    "store_name": "Store_166",
+    "product_id": 666,
+    "product_name": "Flour"
+  },
+  {
+    "city_id": 0,
+    "city_name": "New York",
+    "store_id": 121,
+    "store_name": "Store_121",
+    "product_id": 666,
+    "product_name": "Flour"
+  },
+  {
+    "city_id": 0,
+    "city_name": "New York",
+    "store_id": 847,
+    "store_name": "Store_847",
+    "product_id": 644,
+    "product_name": "Carrots"
+  },
+  {
+    "city_id": 0,
+    "city_name": "New York",
+    "store_id": 238,
+    "store_name": "Store_238",
+    "product_id": 363,
+    "product_name": "Dried Mango"
+  },
+  {
+    "city_id": 4,
+    "city_name": "Phoenix",
+    "store_id": 10,
+    "store_name": "Store_10",
+    "product_id": 290,
+    "product_name": "Chickpeas"
+  },
+  {
+    "city_id": 0,
+    "city_name": "New York",
+    "store_id": 567,
+    "store_name": "Store_567",
+    "product_id": 122,
+    "product_name": "Basil"
+  },
+  {
+    "city_id": 13,
+    "city_name": "Columbus",
+    "store_id": 656,
+    "store_name": "Store_656",
+    "product_id": 50,
+    "product_name": "Black Pepper"
+  },
+  {
+    "city_id": 0,
+    "city_name": "New York",
+    "store_id": 431,
+    "store_name": "Store_431",
+    "product_id": 797,
+    "product_name": "Half and Half"
+  },
+  {
+    "city_id": 16,
+    "city_name": "Indianapolis",
+    "store_id": 622,
+    "store_name": "Store_622",
+    "product_id": 290,
+    "product_name": "Chickpeas"
+  },
+  {
+    "city_id": 0,
+    "city_name": "New York",
+    "store_id": 263,
+    "store_name": "Store_263",
+    "product_id": 719,
+    "product_name": "Apple Cider"
+  },
+  {
+    "city_id": 6,
+    "city_name": "San Antonio",
+    "store_id": 667,
+    "store_name": "Store_667",
+    "product_id": 191,
+    "product_name": "Chow Mein Noodles"
+  },
+  {
+    "city_id": 0,
+    "city_name": "New York",
+    "store_id": 750,
+    "store_name": "Store_750",
+    "product_id": 117,
+    "product_name": "Grape Juice"
+  },
+  {
+    "city_id": 0,
+    "city_name": "New York",
+    "store_id": 417,
+    "store_name": "Store_417",
+    "product_id": 70,
+    "product_name": "Green Tea"
+  },
+  {
+    "city_id": 0,
+    "city_name": "New York",
+    "store_id": 621,
+    "store_name": "Store_621",
+    "product_id": 688,
+    "product_name": "Evaporated Milk"
+  },
+  {
+    "city_id": 15,
+    "city_name": "San Francisco",
+    "store_id": 875,
+    "store_name": "Store_875",
+    "product_id": 525,
+    "product_name": "Gouda Cheese"
+  },
+  {
+    "city_id": 0,
+    "city_name": "New York",
+    "store_id": 713,
+    "store_name": "Store_713",
+    "product_id": 452,
+    "product_name": "Brisket"
+  },
+  {
+    "city_id": 0,
+    "city_name": "New York",
+    "store_id": 449,
+    "store_name": "Store_449",
+    "product_id": 201,
+    "product_name": "Alfredo Sauce"
+  },
+  {
+    "city_id": 12,
+    "city_name": "Fort Worth",
+    "store_id": 261,
+    "store_name": "Store_261",
+    "product_id": 793,
+    "product_name": "Caramel"
+  },
+  {
+    "city_id": 12,
+    "city_name": "Fort Worth",
+    "store_id": 250,
+    "store_name": "Store_250",
+    "product_id": 4,
+    "product_name": "Bananas"
+  },
+  {
+    "city_id": 0,
+    "city_name": "New York",
+    "store_id": 500,
+    "store_name": "Store_500",
+    "product_id": 70,
+    "product_name": "Green Tea"
+  },
+  {
+    "city_id": 0,
+    "city_name": "New York",
+    "store_id": 186,
+    "store_name": "Store_186",
+    "product_id": 253,
+    "product_name": "Pesto Sauce"
+  }
+]
