@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Retail Sales Forecasting - Multi-Modal Analytics</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
+    <link href="/static/lib/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #64748b;
+            --success-color: #16a34a;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --info-color: #0891b2;
+        }
+        
+        body {
+            padding-top: 1rem;
+        }
+        
+        /* Fix dropdown overlapping issues */
+        .dropdown-menu {
+            z-index: 2000 !important;
+            position: absolute !important;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 0.5rem;
+            min-width: 220px;
+            max-height: 300px;
+            overflow-y: auto;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95) !important;
+        }
+        
+        .nav-tabs .dropdown-menu {
+            top: 100% !important;
+            margin-top: 0.5rem;
+            left: 0 !important;
+            transform: none !important;
+        }
+        
+        /* Force dropdown to appear above content */
+        .nav-tabs {
+            position: relative;
+            z-index: 1500;
+            margin-bottom: 3rem;
+        }
+        
+        /* Ensure proper container spacing to prevent overlap */
+        .container .row {
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .card {
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Ensure dropdowns stay above other content */
+        .nav-item.dropdown {
+            position: relative;
+            z-index: 1600;
+        }
+        
+        /* Force dropdown direction and prevent overlap */
+        .dropdown-menu.show {
+            display: block !important;
+            top: 100% !important;
+            bottom: auto !important;
+            transform: translateY(0) !important;
+        }
+        
+        /* Additional dropdown positioning fixes */
+        .nav-tabs .nav-item.dropdown .dropdown-menu {
+            margin-top: 0.5rem;
+            border-top: 2px solid var(--primary-color);
+        }
+        
+        /* Prevent dropdown from being cut off on smaller screens */
+        @media (max-width: 768px) {
+            .dropdown-menu {
+                position: fixed !important;
+                top: auto !important;
+                left: 1rem !important;
+                right: 1rem !important;
+                width: auto !important;
+                max-height: 70vh;
+                overflow-y: auto;
+            }
+            
+            .nav-tabs {
+                margin-bottom: 4rem;
+            }
+        }
+        
+        /* Ensure dropdown appears with smooth animation */
+        .dropdown-menu {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            transform: translateY(-10px);
+        }
+        
+        .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .dropdown-toggle::after {
+            margin-left: 0.5rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1e40af 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border-radius: 0 0 2rem 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .card {
+            margin-bottom: 1.5rem;
+            border: none;
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+        
+        .metric-card {
+            text-align: center;
+            padding: 1.5rem;
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 0.5rem 0;
+        }
+        
+        .metric-label {
+            color: var(--secondary-color);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .chart-container {
+            height: 400px;
+            margin: 1rem 0;
+            position: relative;
+        }
+        
+        .small-chart-container {
+            height: 250px;
+            margin: 1rem 0;
+            position: relative;
+        }
+        
+        .alert-card {
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+        }
+        
+        .alert-card.critical {
+            border-left-color: var(--danger-color);
+            background: linear-gradient(135deg, #fef2f2, #fee2e2);
+        }
+        
+        .alert-card.high {
+            border-left-color: var(--warning-color);
+            background: linear-gradient(135deg, #fffbeb, #fef3c7);
+        }
+        
+        .alert-card.medium {
+            border-left-color: var(--info-color);
+            background: linear-gradient(135deg, #f0f9ff, #dbeafe);
+        }
+        
+        .alert-card.low {
+            border-left-color: var(--success-color);
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+        }
+        
+        .alert-count {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+        
+        .alert-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .nav-tabs .nav-link {
+            border-radius: 0.5rem 0.5rem 0 0;
+            margin-right: 0.25rem;
+            font-weight: 500;
+        }
+        
+        .nav-tabs .nav-link.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+        
+        .tab-content {
+            background: white;
+            border-radius: 0 1rem 1rem 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-top: 1rem;
+            position: relative;
+            z-index: 1;
+            clear: both;
+        }
+        
+        /* Enhanced dropdown styling - consistent with nav dropdown */
+        .dropdown-menu {
+            z-index: 2000 !important;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 0.5rem;
+            min-width: 220px;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95) !important;
+        }
+        
+        .dropdown-item {
+            padding: 0.75rem 1.25rem;
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-item:hover {
+            background: linear-gradient(135deg, var(--primary-color), #1e40af);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .navbar {
+            z-index: 1040;
+        }
+        
+        .feature-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .feature-section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .test-button {
+            background: linear-gradient(135deg, var(--success-color), #15803d);
+            border: none;
+            border-radius: 0.5rem;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .test-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(22, 163, 74, 0.3);
+        }
+        
+        .insight-card {
+            background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .progress-bar-container {
+            background: #e5e7eb;
+            border-radius: 1rem;
+            height: 8px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, var(--primary-color), var(--info-color));
+            height: 100%;
+            border-radius: 1rem;
+            transition: width 0.3s ease;
+        }
+        
+
+        
+        .weather-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .correlation-matrix {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        
+        .correlation-cell {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        
+        .correlation-cell:hover {
+            border-color: var(--primary-color);
+            transform: scale(1.05);
+        }
+        
+        .performance-gauge {
+            width: 200px;
+            height: 200px;
+            margin: 1rem auto;
+            position: relative;
+        }
+        
+        .optimization-flow {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .flow-step {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            flex: 1;
+            margin: 0.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            min-width: 200px;
+        }
+        
+        .flow-arrow {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin: 0 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .flow-arrow {
+                display: none;
+            }
+        }
+        
+        /* Timeline styling for implementation roadmaps */
+        .timeline {
+            position: relative;
+            padding: 1rem 0;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding: 1rem 0 1rem 3rem;
+            border-left: 2px solid #e5e7eb;
+        }
+        
+        .timeline-item:last-child {
+            border-left: none;
+        }
+        
+        .timeline-marker {
+            position: absolute;
+            left: -1rem;
+            top: 1.5rem;
+            width: 2rem;
+            height: 2rem;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.875rem;
+        }
+        
+        .timeline-content {
+            background: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-left: 1rem;
+        }
+        
+        .timeline-content h6 {
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+        
+        .timeline-content p {
+            margin-bottom: 0.5rem;
+            color: var(--secondary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="main-header">
+        <div class="container">
+            <div class="text-center">
+                <h1 class="display-4 mb-3">🚀 Enhanced Retail Analytics Platform</h1>
+                <p class="lead">Multi-Modal, Multi-Dimensional Intelligence for Retail Excellence</p>
+                <div class="row mt-4">
+                    <div class="col-md-2 col-sm-4 col-6">
+                        <div class="text-center">
+                            <div style="font-size: 2rem;">📈</div>
+                            <small>Sales Forecasting</small>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-sm-4 col-6">
+                        <div class="text-center">
+                            <div style="font-size: 2rem;">🌤️</div>
+                            <small>Weather Intelligence</small>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-sm-4 col-6">
+                        <div class="text-center">
+                            <div style="font-size: 2rem;">🎯</div>
+                            <small>Promotion Engine</small>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-sm-4 col-6">
+                        <div class="text-center">
+                            <div style="font-size: 2rem;">📦</div>
+                            <small>Inventory Intelligence</small>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-sm-4 col-6">
+                        <div class="text-center">
+                            <div style="font-size: 2rem;">📊</div>
+                            <small>Category Analytics</small>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-sm-4 col-6">
+                        <div class="text-center">
+                            <div style="font-size: 2rem;">🏪</div>
+                            <small>Store Intelligence</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Enhanced Navigation with Dropdowns -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <ul class="nav nav-tabs" id="mainTabs" role="tablist">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle active" data-bs-toggle="dropdown" href="#" role="button">
+                                    📈 Sales Forecasting
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="showFeature('basic-forecast')">Basic Forecast</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="showFeature('ensemble-forecast')">Ensemble Models</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="showFeature('cross-store-comparison')">Cross-Store Analysis</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="showFeature('confidence-intervals')">Confidence Intervals</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button">
+                                    🌤️ Weather Intelligence
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="showFeature('weather-correlation')">Weather Correlation</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="showFeature('seasonal-patterns')">Seasonal Patterns</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="showFeature('weather-scenarios')">Weather Scenarios</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="showFeature('climate-impact')">Climate Impact</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button">
+                                    🎯 Promotion Engine
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="showFeature('promotion-impact')">Impact Analysis</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="showFeature('cross-product-effects')">Cross-Product Effects</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="showFeature('optimal-pricing')">Optimal Pricing</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="showFeature('roi-optimization')">ROI Optimization</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button">
+                                    📦 Inventory Intelligence
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="showFeature('stockout-prediction')">Stockout Prediction</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="showFeature('cross-store-optimization')">Cross-Store Optimization</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="showFeature('safety-stock')">Safety Stock Calculation</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="showFeature('reorder-optimization')">Reorder Optimization</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button">
+                                    📊 Category Analytics
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="showFeature('category-performance')">Performance Analysis</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="showFeature('market-share')">Market Share Analysis</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="showFeature('portfolio-optimization')">Portfolio Optimization</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="showFeature('category-correlations')">Category Correlations</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button">
+                                    🏪 Store Intelligence
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="showFeature('store-clustering')">Store Clustering</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="showFeature('performance-ranking')">Performance Ranking</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="showFeature('best-practices')">Best Practices</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="showFeature('anomaly-detection')">Anomaly Detection</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button">
+                                    ⚡ Real-Time Intelligence
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="showFeature('live-alerts')">Live Alerts</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="showFeature('demand-monitoring')">Demand Monitoring</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="showFeature('competitive-intelligence')">Competitive Intelligence</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="showFeature('customer-behavior')">Customer Behavior</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Global Parameters Panel -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">🎛️ Global Parameters</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">City</label>
+                            <select class="form-select" id="global-city">
+                                <option value="0">New York, NY</option>
+                                <option value="1">Los Angeles, CA</option>
+                                <option value="2">Chicago, IL</option>
+                                <option value="3">Houston, TX</option>
+                                <option value="4">Phoenix, AZ</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Store</label>
+                            <select class="form-select" id="global-store">
+                                <option value="104">Downtown Market</option>
+                                <option value="205">Suburban Plaza</option>
+                                <option value="306">Airport Terminal</option>
+                                <option value="407">Mall Location</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Product</label>
+                            <select class="form-select" id="global-product">
+                                <option value="4">Fresh Apples</option>
+                                <option value="6">Organic Milk</option>
+                                <option value="18">Whole Wheat Bread</option>
+                                <option value="21">Premium Coffee</option>
+                                <option value="23">Fresh Bananas</option>
+                                <option value="26">Organic Eggs</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Analysis Period</label>
+                            <select class="form-select" id="global-period">
+                                <option value="7">Last 7 days</option>
+                                <option value="30">Last 30 days</option>
+                                <option value="90">Last 90 days</option>
+                                <option value="365">Last year</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary w-100" onclick="updateGlobalParams()">
+                            Apply to All Features
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-9">
+                <!-- Feature Content Area -->
+                <div id="feature-content">
+                    
+                    <!-- 1. BASIC FORECAST SECTION -->
+                    <div id="basic-forecast" class="feature-section active">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>📈 Basic Sales Forecasting</h4>
+                                <p class="mb-0">Predict future sales with confidence intervals and model accuracy</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5>Test Parameters</h5>
+                                        <div class="mb-3">
+                                            <label class="form-label">Forecast Days</label>
+                                            <input type="range" class="form-range" min="7" max="60" value="30" id="forecast-days">
+                                            <div class="d-flex justify-content-between">
+                                                <span>7 days</span>
+                                                <span id="days-display">30 days</span>
+                                                <span>60 days</span>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Model Type</label>
+                                            <select class="form-select" id="model-type">
+                                                <option value="prophet">Prophet (Time Series)</option>
+                                                <option value="xgboost">XGBoost (ML)</option>
+                                                <option value="ensemble">Ensemble (Recommended)</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="include-weather" checked>
+                                                <label class="form-check-label" for="include-weather">
+                                                    Include weather factors
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="include-holidays" checked>
+                                                <label class="form-check-label" for="include-holidays">
+                                                    Include holiday effects
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="include-promotions" checked>
+                                                <label class="form-check-label" for="include-promotions">
+                                                    Include promotion history
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <button class="test-button w-100" onclick="testBasicForecast()">
+                                            🚀 Run Basic Forecast Test
+                                        </button>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div id="basic-forecast-results">
+                                            <div class="text-center text-muted">
+                                                <i class="bi bi-graph-up" style="font-size: 3rem;"></i>
+                                                <p>Run a forecast test to see predictions</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-4">
+                                    <div class="col-12">
+                                        <h5>Forecast Visualization</h5>
+                                        <div class="chart-container">
+                                            <canvas id="basicForecastChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. ENSEMBLE FORECAST SECTION -->
+                    <div id="ensemble-forecast" class="feature-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>🎯 Ensemble Model Forecasting</h4>
+                                <p class="mb-0">Combine multiple models for superior accuracy and reliability</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <h5>Model Configuration</h5>
+                                        <div class="mb-3">
+                                            <label class="form-label">Prophet Weight</label>
+                                            <input type="range" class="form-range" min="0" max="100" value="40" id="prophet-weight">
+                                            <span id="prophet-weight-display">40%</span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">XGBoost Weight</label>
+                                            <input type="range" class="form-range" min="0" max="100" value="35" id="xgboost-weight">
+                                            <span id="xgboost-weight-display">35%</span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Random Forest Weight</label>
+                                            <input type="range" class="form-range" min="0" max="100" value="25" id="rf-weight">
+                                            <span id="rf-weight-display">25%</span>
+                                        </div>
+                                        <button class="test-button w-100" onclick="testEnsembleForecast()">
+                                            🔄 Run Ensemble Test
+                                        </button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <h5>Model Performance Comparison</h5>
+                                        <div class="chart-container">
+                                            <canvas id="ensembleComparisonChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-4">
+                                    <div class="col-md-3">
+                                        <div class="metric-card">
+                                            <div class="metric-value" id="ensemble-accuracy">--</div>
+                                            <div class="metric-label">Ensemble Accuracy</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="metric-card">
+                                            <div class="metric-value" id="ensemble-mae">--</div>
+                                            <div class="metric-label">Mean Absolute Error</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="metric-card">
+                                            <div class="metric-value" id="ensemble-rmse">--</div>
+                                            <div class="metric-label">Root Mean Square Error</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="metric-card">
+                                            <div class="metric-value" id="ensemble-confidence">--</div>
+                                            <div class="metric-label">Confidence Level</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. CROSS-STORE COMPARISON SECTION -->
+                    <div id="cross-store-comparison" class="feature-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>🏪 Cross-Store Performance Analysis</h4>
+                                <p class="mb-0">Compare performance across stores and identify optimization opportunities</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <h5>Comparison Parameters</h5>
+                                        <div class="mb-3">
+                                            <label class="form-label">Comparison Type</label>
+                                            <select class="form-select" id="comparison-type">
+                                                <option value="sales-performance">Sales Performance</option>
+                                                <option value="inventory-efficiency">Inventory Efficiency</option>
+                                                <option value="promotion-effectiveness">Promotion Effectiveness</option>
+                                                <option value="customer-satisfaction">Customer Satisfaction</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Store Selection</label>
+                                            <select class="form-select" id="store-group" multiple>
+                                                <option value="city-0">All NYC Stores</option>
+                                                <option value="city-1">All LA Stores</option>
+                                                <option value="city-2">All Chicago Stores</option>
+                                                <option value="similar-size">Similar Size Stores</option>
+                                                <option value="high-performers">High Performers</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Time Period</label>
+                                            <select class="form-select" id="comparison-period">
+                                                <option value="week">Last Week</option>
+                                                <option value="month">Last Month</option>
+                                                <option value="quarter">Last Quarter</option>
+                                                <option value="year">Last Year</option>
+                                            </select>
+                                        </div>
+                                        <button class="test-button w-100" onclick="testCrossStoreComparison()">
+                                            📊 Run Comparison Analysis
+                                        </button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <h5>Performance Dashboard</h5>
+                                        <div id="cross-store-results">
+                                            <div class="text-center text-muted">
+                                                <p>Select stores and run analysis to see comparison</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. WEATHER CORRELATION SECTION -->
+                    <div id="weather-correlation" class="feature-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>🌤️ Weather Correlation Analysis</h4>
+                                <p class="mb-0">Analyze how weather conditions impact product demand</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <h5>Weather Parameters</h5>
+                                        <div class="mb-3">
+                                            <label class="form-label">Temperature Range (°C)</label>
+                                            <div class="d-flex">
+                                                <input type="number" class="form-control me-2" id="temp-min" value="15" placeholder="Min">
+                                                <input type="number" class="form-control" id="temp-max" value="35" placeholder="Max">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Humidity Range (%)</label>
+                                            <div class="d-flex">
+                                                <input type="number" class="form-control me-2" id="humidity-min" value="40" placeholder="Min">
+                                                <input type="number" class="form-control" id="humidity-max" value="80" placeholder="Max">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Precipitation (mm)</label>
+                                            <input type="range" class="form-range" min="0" max="50" value="0" id="precipitation">
+                                            <span id="precipitation-display">0 mm</span>
+                                        </div>
+                                        <button class="test-button w-100" onclick="testWeatherCorrelation()">
+                                            🌦️ Analyze Weather Impact
+                                        </button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="card weather-card">
+                                                    <div class="card-body metric-card">
+                                                        <div class="weather-icon">🌡️</div>
+                                                        <div class="metric-value" id="temp-correlation">--</div>
+                                                        <div class="metric-label">Temperature Impact</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="card weather-card">
+                                                    <div class="card-body metric-card">
+                                                        <div class="weather-icon">💧</div>
+                                                        <div class="metric-value" id="humidity-correlation">--</div>
+                                                        <div class="metric-label">Humidity Impact</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="card weather-card">
+                                                    <div class="card-body metric-card">
+                                                        <div class="weather-icon">🌧️</div>
+                                                        <div class="metric-value" id="rain-correlation">--</div>
+                                                        <div class="metric-label">Rain Impact</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="card weather-card">
+                                                    <div class="card-body metric-card">
+                                                        <div class="weather-icon">🌪️</div>
+                                                        <div class="metric-value" id="wind-correlation">--</div>
+                                                        <div class="metric-label">Wind Impact</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="chart-container mt-3">
+                                            <canvas id="weatherCorrelationChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. PROMOTION IMPACT SECTION -->
+                    <div id="promotion-impact" class="feature-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>🎯 Promotion Impact Analysis</h4>
+                                <p class="mb-0">Optimize promotional strategies with data-driven insights</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <h5>Promotion Configuration</h5>
+                                        <div class="mb-3">
+                                            <label class="form-label">Discount Percentage</label>
+                                            <input type="range" class="form-range" min="5" max="50" value="20" id="discount-percent">
+                                            <span id="discount-display">20% OFF</span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Promotion Duration</label>
+                                            <select class="form-select" id="promotion-duration">
+                                                <option value="1">1 Day (Flash Sale)</option>
+                                                <option value="3">3 Days (Weekend)</option>
+                                                <option value="7">1 Week</option>
+                                                <option value="14">2 Weeks</option>
+                                                <option value="30">1 Month</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Promotion Type</label>
+                                            <select class="form-select" id="promotion-type">
+                                                <option value="percentage">Percentage Discount</option>
+                                                <option value="bogo">Buy One Get One</option>
+                                                <option value="bundle">Bundle Deal</option>
+                                                <option value="loyalty">Loyalty Member Only</option>
+                                            </select>
+                                        </div>
+                                        <button class="test-button w-100" onclick="testPromotionImpact()">
+                                            🎯 Analyze Promotion Impact
+                                        </button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="metric-card">
+                                                    <div class="metric-value" id="promotion-uplift">--</div>
+                                                    <div class="metric-label">Sales Uplift</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="metric-card">
+                                                    <div class="metric-value" id="promotion-roi">--</div>
+                                                    <div class="metric-label">ROI</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="metric-card">
+                                                    <div class="metric-value" id="incremental-sales">--</div>
+                                                    <div class="metric-label">Incremental Sales</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="metric-card">
+                                                    <div class="metric-value" id="customer-acquisition">--</div>
+                                                    <div class="metric-label">New Customers</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="chart-container mt-3">
+                                            <canvas id="promotionImpactChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 6. STOCKOUT PREDICTION SECTION -->
+                    <div id="stockout-prediction" class="feature-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>📦 Stockout Risk Prediction</h4>
+                                <p class="mb-0">Predict and prevent stockouts with advanced risk assessment</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <h5>Risk Parameters</h5>
+                                        <div class="mb-3">
+                                            <label class="form-label">Current Stock Level</label>
+                                            <input type="number" class="form-control" id="current-stock" value="150" placeholder="Units">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Lead Time (Days)</label>
+                                            <input type="number" class="form-control" id="lead-time" value="3" placeholder="Days">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Service Level Target</label>
+                                            <select class="form-select" id="service-level">
+                                                <option value="90">90% (Standard)</option>
+                                                <option value="95">95% (High)</option>
+                                                <option value="99">99% (Premium)</option>
+                                            </select>
+                                        </div>
+                                        <button class="test-button w-100" onclick="testStockoutPrediction()">
+                                            📊 Assess Stockout Risk
+                                        </button>
+                                    </div>
+                                    <div class="col-md-8" id="stockout-results">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="card">
+                                                    <div class="card-body">
+                                                        <h5>Risk Score</h5>
+                                                        <div class="progress-bar-container">
+                                                            <div class="progress-bar" id="risk-progress" style="width: 0%"></div>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between">
+                                                            <span>Low Risk</span>
+                                                            <span id="risk-score">--</span>
+                                                            <span>High Risk</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="metric-card">
+                                                    <div class="metric-value" id="recommended-reorder">--</div>
+                                                    <div class="metric-label">Recommended Reorder</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="chart-container mt-3">
+                                            <canvas id="stockoutRiskChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 7. LIVE ALERTS SECTION -->
+                    <div id="live-alerts" class="feature-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>⚡ Real-Time Alert System</h4>
+                                <p class="mb-0">Monitor critical events and receive intelligent alerts</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-4">
+                                    <div class="col-md-3">
+                                        <div class="card alert-card critical">
+                                            <div class="card-body metric-card">
+                                                <div class="alert-icon">🚨</div>
+                                                <div class="alert-count" id="critical-alerts">0</div>
+                                                <div class="metric-label">Critical Alerts</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="card alert-card high">
+                                            <div class="card-body metric-card">
+                                                <div class="alert-icon">⚠️</div>
+                                                <div class="alert-count" id="high-alerts">0</div>
+                                                <div class="metric-label">High Priority</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="card alert-card medium">
+                                            <div class="card-body metric-card">
+                                                <div class="alert-icon">📊</div>
+                                                <div class="alert-count" id="medium-alerts">0</div>
+                                                <div class="metric-label">Medium Priority</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="card alert-card low">
+                                            <div class="card-body metric-card">
+                                                <div class="alert-icon">ℹ️</div>
+                                                <div class="alert-count" id="low-alerts">0</div>
+                                                <div class="metric-label">Informational</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <h5>Alert Configuration</h5>
+                                        <div class="mb-3">
+                                            <label class="form-label">Alert Types</label>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="alert-stockout" checked>
+                                                <label class="form-check-label" for="alert-stockout">Stockout Warnings</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="alert-demand" checked>
+                                                <label class="form-check-label" for="alert-demand">Demand Spikes</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="alert-weather" checked>
+                                                <label class="form-check-label" for="alert-weather">Weather Impact</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="alert-promotion" checked>
+                                                <label class="form-check-label" for="alert-promotion">Promotion Opportunities</label>
+                                            </div>
+                                        </div>
+                                        <button class="test-button w-100" onclick="testRealTimeAlerts()">
+                                            🔔 Test Alert System
+                                        </button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <h5>Live Alert Stream</h5>
+                                        <div id="alert-stream" style="height: 400px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 1rem;">
+                                            <div class="text-center text-muted">
+                                                <p>Test the alert system to see real-time notifications</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Weather Intelligence Features -->
+                    <div id="seasonal-patterns" class="feature-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>🌡️ Seasonal Patterns Analysis</h4>
+                                <p class="mb-0">Analyze seasonal trends and their impact on sales</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <button class="test-button w-100" onclick="testNewFeature('seasonal-patterns')">
+                                            📊 Analyze Seasonal Patterns
+                                        </button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div id="seasonal-patterns-results">
+                                            <!-- Results will be populated here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="weather-scenarios" class="feature-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>🌦️ Weather Scenarios</h4>
+                                <p class="mb-0">Simulate different weather conditions and their business impact</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <button class="test-button w-100" onclick="testNewFeature('weather-scenarios')">
+                                            🌦️ Run Weather Scenarios
+                                        </button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div id="weather-scenarios-results">
+                                            <!-- Results will be populated here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="climate-impact" class="feature-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>🌍 Climate Impact Analysis</h4>
+                                <p class="mb-0">Assess long-term climate trends on business performance</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <button class="test-button w-100" onclick="testNewFeature('climate-impact')">
+                                            🌍 Assess Climate Impact
+                                        </button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div id="climate-impact-results">
+                                            <!-- Results will be populated here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Promotion Engine Features -->
+                    <div id="cross-product-effects" class="feature-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>🔄 Cross-Product Effects</h4>
+                                <p class="mb-0">Analyze how promotions affect related products</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <button class="test-button w-100" onclick="testNewFeature('cross-product-effects')">
+                                            🔄 Analyze Cross-Product Effects
+                                        </button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div id="cross-product-effects-results">
+                                            <!-- Results will be populated here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="optimal-pricing" class="feature-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>💰 Optimal Pricing</h4>
+                                <p class="mb-0">Determine optimal pricing strategies for maximum profit</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <button class="test-button w-100" onclick="testNewFeature('optimal-pricing')">
+                                            💰 Calculate Optimal Pricing
+                                        </button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div id="optimal-pricing-results">
+                                            <!-- Results will be populated here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="roi-optimization" class="feature-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>📈 ROI Optimization</h4>
+                                <p class="mb-0">Optimize promotion ROI and budget allocation</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <button class="test-button w-100" onclick="testNewFeature('roi-optimization')">
+                                            📈 Optimize ROI
+                                        </button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div id="roi-optimization-results">
+                                            <!-- Results will be populated here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Inventory Intelligence Features -->
+                    <div id="cross-store-optimization" class="feature-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>🏪 Cross-Store Optimization</h4>
+                                <p class="mb-0">Optimize inventory distribution across stores</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <button class="test-button w-100" onclick="testNewFeature('cross-store-optimization')">
+                                            🏪 Optimize Cross-Store
+                                        </button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div id="cross-store-optimization-results">
+                                            <!-- Results will be populated here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="safety-stock" class="feature-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>🛡️ Safety Stock Calculation</h4>
+                                <p class="mb-0">Calculate optimal safety stock levels</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <button class="test-button w-100" onclick="testNewFeature('safety-stock')">
+                                            🛡️ Calculate Safety Stock
+                                        </button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div id="safety-stock-results">
+                                            <!-- Results will be populated here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="reorder-optimization" class="feature-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>🔄 Reorder Optimization</h4>
+                                <p class="mb-0">Optimize reorder points and quantities</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <button class="test-button w-100" onclick="testNewFeature('reorder-optimization')">
+                                            🔄 Optimize Reorder
+                                        </button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div id="reorder-optimization-results">
+                                            <!-- Results will be populated here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category Analytics Features -->
+                    <div id="category-performance" class="feature-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>📊 Category Performance</h4>
+                                <p class="mb-0">Analyze category-wise performance metrics</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <button class="test-button w-100" onclick="testNewFeature('category-performance')">
+                                            📊 Analyze Category Performance
+                                        </button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div id="category-performance-results">
+                                            <!-- Results will be populated here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="market-share" class="feature-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>🎯 Market Share Analysis</h4>
+                                <p class="mb-0">Analyze market share and competitive position</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <button class="test-button w-100" onclick="testNewFeature('market-share')">
+                                            🎯 Analyze Market Share
+                                        </button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div id="market-share-results">
+                                            <!-- Results will be populated here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="portfolio-optimization" class="feature-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>📋 Portfolio Optimization</h4>
+                                <p class="mb-0">Optimize product portfolio for maximum returns</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <button class="test-button w-100" onclick="testNewFeature('portfolio-optimization')">
+                                            📋 Optimize Portfolio
+                                        </button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div id="portfolio-optimization-results">
+                                            <!-- Results will be populated here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="category-correlations" class="feature-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>🔗 Category Correlations</h4>
+                                <p class="mb-0">Discover relationships between product categories</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <button class="test-button w-100" onclick="testNewFeature('category-correlations')">
+                                            🔗 Analyze Correlations
+                                        </button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div id="category-correlations-results">
+                                            <!-- Results will be populated here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Store Intelligence Features -->
+                    <div id="store-clustering" class="feature-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>🏪 Store Clustering</h4>
+                                <p class="mb-0">Group stores by performance patterns</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <button class="test-button w-100" onclick="testNewFeature('store-clustering')">
+                                            🏪 Cluster Stores
+                                        </button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div id="store-clustering-results">
+                                            <!-- Results will be populated here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="performance-ranking" class="feature-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>🏆 Performance Ranking</h4>
+                                <p class="mb-0">Rank stores by performance metrics</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <button class="test-button w-100" onclick="testNewFeature('performance-ranking')">
+                                            🏆 Rank Performance
+                                        </button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div id="performance-ranking-results">
+                                            <!-- Results will be populated here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="best-practices" class="feature-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>⭐ Best Practices</h4>
+                                <p class="mb-0">Identify and share best practices across stores</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <button class="test-button w-100" onclick="testNewFeature('best-practices')">
+                                            ⭐ Identify Best Practices
+                                        </button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div id="best-practices-results">
+                                            <!-- Results will be populated here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="anomaly-detection" class="feature-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>🔍 Anomaly Detection</h4>
+                                <p class="mb-0">Detect unusual patterns and anomalies</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <button class="test-button w-100" onclick="testNewFeature('anomaly-detection')">
+                                            🔍 Detect Anomalies
+                                        </button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div id="anomaly-detection-results">
+                                            <!-- Results will be populated here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Features -->
+                    <div id="confidence-intervals" class="feature-section">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>📊 Confidence Intervals</h4>
+                                <p class="mb-0">Calculate statistical confidence intervals for forecasts</p>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <button class="test-button w-100" onclick="testNewFeature('confidence-intervals')">
+                                            📊 Calculate Confidence Intervals
+                                        </button>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div id="confidence-intervals-results">
+                                            <!-- Results will be populated here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loading Spinner -->
+                    <div id="loading-spinner" class="loading-spinner">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Processing analysis...</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions Panel -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>🚀 Quick Test Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-primary w-100 mb-2" onclick="runAllTests()">
+                                    🔄 Run All Tests
+                                </button>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-success w-100 mb-2" onclick="generateSampleData()">
+                                    📊 Generate Sample Data
+                                </button>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-info w-100 mb-2" onclick="exportResults()">
+                                    📤 Export Results
+                                </button>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-warning w-100 mb-2" onclick="clearResults()">
+                                    🗑️ Clear Results
+                                </button>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-dark w-100 mb-2" onclick="showAPIDocumentation()">
+                                    📋 API Docs
+                                </button>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-secondary w-100 mb-2" onclick="downloadReport()">
+                                    📄 Download Report
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="/static/lib/bootstrap.bundle.min.js"></script>
+    <script src="/static/lib/chart.min.js"></script>
+    <script src="/static/enhanced_app.js"></script>
+</body>
+</html> 

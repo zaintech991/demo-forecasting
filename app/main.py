@@ -23,8 +23,29 @@ def root():
     return FileResponse("static/index.html")
 
 
+# Serve professional dashboard
+@app.get("/professional_dashboard.html")
+def professional_dashboard():
+    return FileResponse("static/professional_dashboard.html")
+
+
+# Serve enhanced dashboard
+@app.get("/enhanced_index.html")
+def enhanced_dashboard():
+    return FileResponse("static/enhanced_index.html")
+
+
 # Mount the API under /api
 app.mount("/api", api_app)
+
+# Add enhanced endpoints directly to main app
+try:
+    from api.enhanced_multi_modal_api import router as enhanced_router
+
+    app.include_router(enhanced_router)
+except ImportError as e:
+    print(f"Warning: Could not load enhanced API: {e}")
+    pass
 
 
 # Debug endpoint to find valid data combinations

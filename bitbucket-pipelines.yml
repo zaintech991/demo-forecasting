@@ -18,7 +18,7 @@ pipelines:
               script:
                 - pip install -r requirements.txt
                 - pip install mypy
-                - mypy .
+                - mypy . --config-file=mypy.ini
 
           - step:
               name: Code Formatter (Black Check)

@@ -41,6 +41,9 @@ class DynamicWeatherService:
             sd.avg_humidity,
             sd.precpt as precipitation,
             sd.avg_wind_level as wind_speed,
+            sd.discount,
+            sd.holiday_flag,
+            sd.activity_flag,
             ph.product_name,
             sh.store_name,
             sh.city_id

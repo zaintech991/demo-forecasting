@@ -9,7 +9,7 @@ from .connection import get_pool, cached, paginate
 class BaseRepository:
     """Base repository class with common database operations."""
 
-    @cached(key_prefix="base")
+    @cached()
     async def get_by_id(self, table: str, id: int) -> Optional[Dict[str, Any]]:
         """Get a record by ID with caching."""
         pool = await get_pool()
@@ -82,7 +82,7 @@ class SalesRepository(BaseRepository):
 
     TABLE_NAME = "sales_data"
 
-    @cached(key_prefix="sales")
+    @cached()
     async def get_sales_by_store(self, store_id: int, **kwargs) -> List[Dict[str, Any]]:
         """Get sales data for a specific store with caching."""
         pool = await get_pool()
@@ -99,7 +99,7 @@ class SalesRepository(BaseRepository):
             )
             return [dict(record) for record in records]
 
-    @cached(key_prefix="sales_stats")
+    @cached()
     async def get_store_statistics(self, store_id: int) -> Optional[Dict[str, Any]]:
         """Get aggregated statistics for a store with caching."""
         pool = await get_pool()

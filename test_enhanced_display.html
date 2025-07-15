@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Display Test</title>
+    <link href="/static/lib/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .metric-card {
+            text-align: center;
+            padding: 1.5rem;
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2563eb;
+            margin: 0.5rem 0;
+        }
+        
+        .metric-label {
+            color: #64748b;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .insight-card {
+            background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .weather-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .correlation-matrix {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        
+        .correlation-cell {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 1rem 0;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding: 1rem 0 1rem 3rem;
+            border-left: 2px solid #e5e7eb;
+        }
+        
+        .timeline-marker {
+            position: absolute;
+            left: -1rem;
+            top: 1.5rem;
+            width: 2rem;
+            height: 2rem;
+            background: #2563eb;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.875rem;
+        }
+        
+        .timeline-content {
+            background: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-left: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>Enhanced Display Test</h2>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Best Practices Test</h5>
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-primary" onclick="testBestPractices()">Test Best Practices Display</button>
+                        <div id="best-practices-results" class="mt-3"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Category Performance Test</h5>
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-primary" onclick="testCategoryPerformance()">Test Category Display</button>
+                        <div id="category-performance-results" class="mt-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Weather Analysis Test</h5>
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-primary" onclick="testWeatherAnalysis()">Test Weather Display</button>
+                        <div id="weather-results" class="mt-3"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Generic Results Test</h5>
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-primary" onclick="testGenericResults()">Test Generic Display</button>
+                        <div id="generic-results" class="mt-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global parameters for testing
+        const globalParams = {
+            city: 0,
+            store: 104,
+            product: 4
+        };
+
+        // Test Best Practices Display
+        function testBestPractices() {
+            const testData = {
+                status: "success",
+                analysis_type: "best_practices",
+                data_source: "benchmark_analysis",
+                practices_insights: {
+                    status: "success",
+                    best_practices: [
+                        {
+                            title: "Optimize Store Layout",
+                            description: "Rearrange product placement for better customer flow and increased sales"
+                        },
+                        {
+                            title: "Implement Dynamic Pricing",
+                            description: "Use real-time data to adjust prices based on demand and competition"
+                        },
+                        {
+                            title: "Enhanced Staff Training",
+                            description: "Provide comprehensive training to improve customer service and product knowledge"
+                        }
+                    ],
+                    implementation_difficulty: "Medium",
+                    expected_impact: 18.5,
+                    success_probability: 85
+                }
+            };
+            
+            const html = formatPracticesResults(testData.practices_insights);
+            document.getElementById('best-practices-results').innerHTML = html;
+        }
+
+        // Test Category Performance Display
+        function testCategoryPerformance() {
+            const testData = {
+                status: "simulated",
+                analysis_type: "category_performance",
+                category_metrics: {
+                    market_share: 23.5,
+                    growth_rate: 12.8,
+                    seasonality_index: 1.45,
+                    profit_margin: 18.2
+                },
+                market_breakdown: {
+                    "Fresh Produce": 35,
+                    "Dairy Products": 28,
+                    "Bakery Items": 22,
+                    "Beverages": 15
+                }
+            };
+            
+            const html = formatCategoryResults(testData);
+            document.getElementById('category-performance-results').innerHTML = html;
+        }
+
+        // Test Weather Analysis Display
+        function testWeatherAnalysis() {
+            const testData = {
+                status: "success",
+                seasonal_analysis: {
+                    spring: {
+                        avg_sales: 0.52,
+                        avg_temperature: 65,
+                        avg_humidity: 55,
+                        weather_correlation: 0.73,
+                        avg_precipitation: 2.1
+                    },
+                    summer: {
+                        avg_sales: 0.48,
+                        avg_temperature: 82,
+                        avg_humidity: 68,
+                        weather_correlation: 0.65,
+                        avg_precipitation: 1.8
+                    },
+                    fall: {
+                        avg_sales: 0.55,
+                        avg_temperature: 58,
+                        avg_humidity: 62,
+                        weather_correlation: 0.78,
+                        avg_precipitation: 2.5
+                    },
+                    winter: {
+                        avg_sales: 0.61,
+                        avg_temperature: 42,
+                        avg_humidity: 58,
+                        weather_correlation: 0.82,
+                        avg_precipitation: 1.9
+                    }
+                }
+            };
+            
+            const html = formatWeatherResults(testData);
+            document.getElementById('weather-results').innerHTML = html;
+        }
+
+        // Test Generic Results Display
+        function testGenericResults() {
+            const testData = {
+                status: "success",
+                analysis_type: "generic_analysis",
+                data_source: "real_time_database",
+                insights: {
+                    key_finding: "Sales performance shows strong correlation with weather patterns",
+                    recommendation: "Implement weather-based inventory adjustments",
+                    confidence_level: "High"
+                },
+                metrics: {
+                    accuracy: "92.5%",
+                    precision: "88.3%",
+                    recall: "94.1%"
+                },
+                recommendations: [
+                    {
+                        title: "Increase inventory during sunny days",
+                        description: "Sales typically increase by 15% during sunny weather",
+                        impact: "+15% sales"
+                    },
+                    {
+                        title: "Reduce fresh produce orders during rainy periods",
+                        description: "Fresh produce sales drop by 8% during rainy weather",
+                        impact: "-8% waste"
+                    }
+                ]
+            };
+            
+            const html = formatGenericResults(testData);
+            document.getElementById('generic-results').innerHTML = html;
+        }
+
+        // Include the enhanced formatting functions from enhanced_app.js
+        // (These would normally be imported, but for testing we'll include them inline)
+        
+        // Helper functions
+        function formatFeatureName(featureId) {
+            return featureId.split('-').map(word => 
+                word.charAt(0).toUpperCase() + word.slice(1)
+            ).join(' ');
+        }
+
+        function getCityName(cityId) {
+            const cities = {
+                0: 'New York, NY',
+                1: 'Los Angeles, CA',
+                2: 'Chicago, IL',
+                3: 'Houston, TX',
+                4: 'Phoenix, AZ'
+            };
+            return cities[cityId] || `City ${cityId}`;
+        }
+
+        function getStoreName(storeId) {
+            const stores = {
+                104: 'Downtown Market',
+                205: 'Suburban Plaza',
+                306: 'Airport Terminal',
+                407: 'Mall Location'
+            };
+            return stores[storeId] || `Store ${storeId}`;
+        }
+
+        function getProductName(productId) {
+            const products = {
+                4: 'Fresh Apples',
+                6: 'Organic Milk',
+                18: 'Whole Wheat Bread',
+                21: 'Premium Coffee',
+                23: 'Fresh Bananas',
+                26: 'Organic Eggs'
+            };
+            return products[productId] || `Product ${productId}`;
+        }
+
+        function getSeasonIcon(season) {
+            const icons = {
+                'spring': '🌸',
+                'summer': '☀️',
+                'fall': '🍂',
+                'autumn': '🍂',
+                'winter': '❄️'
+            };
+            return icons[season.toLowerCase()] || '🌤️';
+        }
+
+        // Enhanced formatting functions (simplified versions for testing)
+        function formatPracticesResults(practicesData) {
+            let html = '<div class="row">';
+            
+            if (practicesData.best_practices && Array.isArray(practicesData.best_practices)) {
+                html += `
+                    <div class="col-12">
+                        <h6>⭐ Best Practices Identified</h6>
+                        <div class="row">
+                            ${practicesData.best_practices.map((practice, index) => `
+                                <div class="col-md-4 mb-3">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-start">
+                                                <div class="badge bg-primary rounded-pill me-3">${index + 1}</div>
+                                                <div>
+                                                    <h6 class="card-title">${practice.title || practice.name || practice}</h6>
+                                                    <p class="card-text">${practice.description || practice.details || 'Implementation recommended for improved performance'}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            html += `
+                <div class="col-12 mt-4">
+                    <h6>📊 Implementation Analysis</h6>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="metric-card">
+                                <div class="metric-value text-info">${practicesData.implementation_difficulty || 'Medium'}</div>
+                                <div class="metric-label">Implementation Difficulty</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="metric-card">
+                                <div class="metric-value text-success">+${practicesData.expected_impact || 15}%</div>
+                                <div class="metric-label">Expected Impact</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="metric-card">
+                                <div class="metric-value text-primary">${practicesData.success_probability || 80}%</div>
+                                <div class="metric-label">Success Probability</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            html += '</div>';
+            return html;
+        }
+
+        function formatCategoryResults(data) {
+            let html = '<div class="row">';
+            
+            if (data.category_metrics) {
+                html += `
+                    <div class="col-12">
+                        <h6>📊 Category Performance Analysis</h6>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-value text-success">${data.category_metrics.market_share || '--'}%</div>
+                                    <div class="metric-label">Market Share</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-value text-primary">${data.category_metrics.growth_rate || '--'}%</div>
+                                    <div class="metric-label">Growth Rate</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-value text-info">${data.category_metrics.seasonality_index || '--'}</div>
+                                    <div class="metric-label">Seasonality Index</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="metric-card">
+                                    <div class="metric-value text-warning">${data.category_metrics.profit_margin || '--'}%</div>
+                                    <div class="metric-label">Profit Margin</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (data.market_breakdown) {
+                html += `
+                    <div class="col-12 mt-4">
+                        <h6>📈 Market Share Breakdown</h6>
+                        <div class="row">
+                            ${Object.entries(data.market_breakdown).map(([category, share]) => `
+                                <div class="col-md-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <h6 class="card-title mb-0">${category}</h6>
+                                                <span class="badge bg-primary">${share}%</span>
+                                            </div>
+                                            <div class="progress mt-2">
+                                                <div class="progress-bar" style="width: ${share}%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            html += '</div>';
+            return html;
+        }
+
+        function formatWeatherResults(data) {
+            let html = '<div class="row">';
+            
+            if (data.seasonal_analysis) {
+                html += `
+                    <div class="col-12">
+                        <h5>🌱 Seasonal Patterns Analysis</h5>
+                        <p class="text-muted">City ${getCityName(globalParams.city)} • Store ${getStoreName(globalParams.store)} • Product ${getProductName(globalParams.product)}</p>
+                    </div>
+                `;
+                html += `
+                    <div class="row">
+                        ${Object.entries(data.seasonal_analysis).map(([season, info]) => `
+                            <div class="col-md-6 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">${season.charAt(0).toUpperCase() + season.slice(1)} ${getSeasonIcon(season)}</h6>
+                                        <div class="metric-value text-primary">$${(info.avg_sales || 0).toFixed(2)}</div>
+                                        <div class="metric-label">Average Sales</div>
+                                        <hr>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <p class="mb-1"><strong>Temperature:</strong> ${info.avg_temperature || 'N/A'}°F</p>
+                                                <p class="mb-0"><strong>Humidity:</strong> ${info.avg_humidity || 'N/A'}%</p>
+                                            </div>
+                                            <div class="col-6">
+                                                <p class="mb-1"><strong>Weather Impact:</strong> ${((info.weather_correlation || 0) * 100).toFixed(1)}%</p>
+                                                <p class="mb-0"><strong>Precipitation:</strong> ${info.avg_precipitation || 'N/A'}mm</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            
+            html += '</div>';
+            return html;
+        }
+
+        function formatGenericResults(data) {
+            let html = `<div class="row">`;
+            
+            if (data.insights || data.analysis_insights || data.business_insights) {
+                const insights = data.insights || data.analysis_insights || data.business_insights;
+                html += `
+                    <div class="col-12">
+                        <h6>💡 Key Insights</h6>
+                        <div class="insight-card">
+                            ${formatInsightsDisplay(insights)}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (data.metrics || data.performance_metrics) {
+                const metrics = data.metrics || data.performance_metrics;
+                html += `
+                    <div class="col-12">
+                        <h6>📊 Performance Metrics</h6>
+                        <div class="row">
+                            ${formatMetricsDisplay(metrics)}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (data.recommendations || data.suggested_actions) {
+                const recommendations = data.recommendations || data.suggested_actions;
+                html += `
+                    <div class="col-12">
+                        <h6>🎯 Recommendations</h6>
+                        <div class="recommendations-list">
+                            ${formatRecommendationsDisplay(recommendations)}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (data.status && data.analysis_type) {
+                html += `
+                    <div class="col-12">
+                        <div class="alert alert-success">
+                            <h6 class="alert-heading">✅ ${formatFeatureName(data.analysis_type)} Complete</h6>
+                            <p class="mb-1"><strong>Status:</strong> ${data.status}</p>
+                            <p class="mb-1"><strong>Data Source:</strong> ${data.data_source || 'Real-time Analysis'}</p>
+                            <hr>
+                            <p class="mb-0">Analysis completed successfully with real-time data insights.</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            html += `</div>`;
+            return html;
+        }
+
+        function formatInsightsDisplay(insights) {
+            if (typeof insights === 'object') {
+                return Object.entries(insights).map(([key, value]) => `
+                    <div class="mb-2 p-2 bg-light rounded">
+                        <strong>${formatFeatureName(key)}:</strong> ${value}
+                    </div>
+                `).join('');
+            }
+            return `<p>${insights}</p>`;
+        }
+
+        function formatMetricsDisplay(metrics) {
+            if (typeof metrics === 'object') {
+                return Object.entries(metrics).map(([key, value]) => `
+                    <div class="col-md-4 mb-3">
+                        <div class="metric-card">
+                            <div class="metric-value">${value}</div>
+                            <div class="metric-label">${formatFeatureName(key)}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            return `<div class="col-12"><p>${metrics}</p></div>`;
+        }
+
+        function formatRecommendationsDisplay(recommendations) {
+            if (Array.isArray(recommendations)) {
+                return recommendations.map((rec, index) => `
+                    <div class="mb-2 p-3 border rounded">
+                        <div class="d-flex align-items-start">
+                            <div class="badge bg-primary rounded-pill me-3">${index + 1}</div>
+                            <div>
+                                <h6 class="mb-1">${rec.title || rec.action || 'Recommendation'}</h6>
+                                <p class="mb-1">${rec.description || rec.details || rec}</p>
+                                ${rec.impact ? `<small class="text-muted">Expected Impact: ${rec.impact}</small>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            return `<p>${recommendations}</p>`;
+        }
+    </script>
+</body>
+</html> 

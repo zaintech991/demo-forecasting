@@ -29,6 +29,10 @@ from services.forecast_service import (
 from services.model_loader import get_forecast_model, get_promo_model
 import traceback
 
+# Import analytics router
+from api.analytics_api import router as analytics_router
+from api.enhanced_multi_modal_api import router as enhanced_router
+
 # Create FastAPI app
 app = FastAPI(
     title="FreshRetail Forecasting API",
@@ -44,6 +48,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include analytics router
+app.include_router(analytics_router)
+app.include_router(enhanced_router)
 
 
 def format_floats_recursive(data: Any, decimals: int = 2) -> Any:
