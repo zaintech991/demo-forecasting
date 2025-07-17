@@ -28,10 +28,13 @@ from services.forecast_service import (
 )
 from services.model_loader import get_forecast_model, get_promo_model
 import traceback
+from contextlib import asynccontextmanager
+from database.connection import db_manager
 
 # Import analytics router
 from api.analytics_api import router as analytics_router
 from api.enhanced_multi_modal_api import router as enhanced_router
+from api.multi_dimensional_forecast import router as multi_dimensional_router
 
 # Create FastAPI app
 app = FastAPI(
@@ -52,6 +55,7 @@ app.add_middleware(
 # Include analytics router
 app.include_router(analytics_router)
 app.include_router(enhanced_router)
+app.include_router(multi_dimensional_router)
 
 
 def format_floats_recursive(data: Any, decimals: int = 2) -> Any:
@@ -100,6 +104,17 @@ async def get_db_connection():
     )
 
 
+async def get_db():
+    """Get database connection context manager"""
+    try:
+        if not db_manager.pool:
+            await db_manager.initialize()
+        return db_manager.get_connection()
+    except Exception as e:
+        print(f"Database connection failed: {e}")
+        raise HTTPException(status_code=500, detail="Database connection failed")
+
+
 @app.get("/")
 async def root():
     """Root endpoint"""
@@ -107,34 +122,46 @@ async def root():
 
 
 @app.get("/cities")
-async def get_cities(conn=Depends(get_db_connection)):
-    rows = await conn.fetch(
-        "SELECT city_id, city_name FROM city_hierarchy ORDER BY city_name"
-    )
-    await conn.close()
-    return [dict(row) for row in rows]
+async def get_cities():
+    try:
+        async with await get_db() as conn:
+            rows = await conn.fetch(
+                "SELECT city_id, city_name FROM city_hierarchy ORDER BY city_name"
+            )
+            return [dict(row) for row in rows]
+    except Exception as e:
+        print(f"Error fetching cities: {e}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 
 @app.get("/stores")
-async def get_stores(conn=Depends(get_db_connection)):
-    rows = await conn.fetch(
-        "SELECT s.store_id, s.store_name, s.city_id, c.city_name FROM store_hierarchy s LEFT JOIN city_hierarchy c ON s.city_id = c.city_id ORDER BY s.store_name"
-    )
-    await conn.close()
-    return [dict(row) for row in rows]
+async def get_stores():
+    try:
+        async with await get_db() as conn:
+            rows = await conn.fetch(
+                "SELECT s.store_id, s.store_name, s.city_id, c.city_name FROM store_hierarchy s LEFT JOIN city_hierarchy c ON s.city_id = c.city_id ORDER BY s.store_name"
+            )
+            return [dict(row) for row in rows]
+    except Exception as e:
+        print(f"Error fetching stores: {e}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 
 @app.get("/products")
-async def get_products(conn=Depends(get_db_connection)):
-    rows = await conn.fetch(
-        "SELECT product_id, product_name FROM product_hierarchy ORDER BY product_name"
-    )
-    await conn.close()
-    return [dict(row) for row in rows]
+async def get_products():
+    try:
+        async with await get_db() as conn:
+            rows = await conn.fetch(
+                "SELECT product_id, product_name FROM product_hierarchy ORDER BY product_name"
+            )
+            return [dict(row) for row in rows]
+    except Exception as e:
+        print(f"Error fetching products: {e}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 
 @app.post("/api/forecast", response_model=ForecastResponse)
-async def forecast(request: ForecastRequest, conn=Depends(get_db_connection)):
+async def forecast(request: ForecastRequest, conn=Depends(get_db)):
     """Generate sales forecast"""
     try:
         model = get_forecast_model()
@@ -185,7 +212,7 @@ async def forecast(request: ForecastRequest, conn=Depends(get_db_connection)):
 
 @app.post("/api/promotions/analyze")
 async def analyze_promotions(
-    request: PromotionAnalysisRequest, conn=Depends(get_db_connection)
+    request: PromotionAnalysisRequest, conn=Depends(get_db)
 ):
     """Analyze promotion effectiveness"""
     try:
@@ -221,7 +248,7 @@ async def analyze_promotions(
 
 @app.post("/api/stockouts/analyze")
 async def analyze_stockout_impact(
-    request: StockoutAnalysisRequest, conn=Depends(get_db_connection)
+    request: StockoutAnalysisRequest, conn=Depends(get_db)
 ):
     """Analyze stockout impact"""
     try:
@@ -246,7 +273,7 @@ async def analyze_stockout_impact(
 
 @app.post("/api/holidays/analyze")
 async def analyze_holiday_effects(
-    request: HolidayImpactRequest, conn=Depends(get_db_connection)
+    request: HolidayImpactRequest, conn=Depends(get_db)
 ):
     """Analyze holiday impact on sales"""
     try:
@@ -277,7 +304,7 @@ async def analyze_holiday_effects(
 
 @app.post("/weather/analyze")
 async def analyze_weather_impact(
-    request: WeatherAnalysisRequest, conn=Depends(get_db_connection)
+    request: WeatherAnalysisRequest, conn=Depends(get_db)
 ):
     """
     Weather-sensitive demand analysis endpoint for frontend integration.
@@ -316,7 +343,7 @@ async def analyze_weather_impact(
 
 @app.post("/category/performance")
 async def analyze_category_performance(
-    request: CategoryPerformanceRequest, conn=Depends(get_db_connection)
+    request: CategoryPerformanceRequest, conn=Depends(get_db)
 ):
     """
     Category-level demand analysis endpoint for frontend integration.
@@ -353,7 +380,7 @@ async def analyze_category_performance(
 
 @app.post("/stores/insights")
 async def analyze_store_clustering(
-    request: StoreInsightsRequest, conn=Depends(get_db_connection)
+    request: StoreInsightsRequest, conn=Depends(get_db)
 ):
     """
     Store clustering and behavior analysis endpoint for frontend integration.
@@ -573,7 +600,7 @@ async def forecast_get(
     store_id: int = Path(...),
     product_id: int = Path(...),
     days: int = Query(30),
-    conn=Depends(get_db_connection),
+    conn=Depends(get_db),
 ):
     """Forecast endpoint for simple GET request compatibility"""
     try:
@@ -641,7 +668,7 @@ async def promotions_impact_get(
     city_id: int = Query(0),
     start_date: str = Query(None),
     end_date: str = Query(None),
-    conn=Depends(get_db_connection),
+    conn=Depends(get_db),
 ):
     """Dynamic promotion impact endpoint using real data analysis"""
     try:
@@ -711,7 +738,7 @@ def get_fallback_promotion_data():
 async def stockout_risk_get(
     store_id: int = Path(...),
     product_id: int = Path(...),
-    conn=Depends(get_db_connection),
+    conn=Depends(get_db),
 ):
     """Dynamic stockout risk endpoint using real data analysis"""
     try:
@@ -772,7 +799,7 @@ def get_fallback_stockout_data():
 
 
 @app.get("/valid-combinations")
-async def get_valid_combinations(conn=Depends(get_db_connection)):
+async def get_valid_combinations(conn=Depends(get_db)):
     """Get valid data combinations for testing"""
     try:
         query = """
@@ -807,7 +834,7 @@ async def get_valid_combinations(conn=Depends(get_db_connection)):
 
 
 @app.get("/debug/data")
-async def debug_data(conn=Depends(get_db_connection)):
+async def debug_data(conn=Depends(get_db)):
     """Debug endpoint to find valid data combinations"""
     try:
         # Get some sample data

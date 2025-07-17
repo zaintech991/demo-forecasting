@@ -16,6 +16,7 @@ import time
 from contextlib import asynccontextmanager
 import os
 from dotenv import load_dotenv
+from .config import get_db_config
 
 # Load environment variables
 load_dotenv()
@@ -38,16 +39,12 @@ class DatabaseManager:
         self.max_cache_size: int = 1000
 
         # Database configuration
-        self.db_config = {
-            "host": os.getenv("DB_HOST", "localhost"),
-            "port": int(os.getenv("DB_PORT", "5432")),
-            "database": os.getenv("DB_NAME", "freshretail_db"),
-            "user": os.getenv("DB_USER", "postgres"),
-            "password": os.getenv("DB_PASSWORD", "password"),
-            "min_size": int(os.getenv("DB_POOL_MIN_SIZE", "10")),
-            "max_size": int(os.getenv("DB_POOL_MAX_SIZE", "20")),
-            "command_timeout": int(os.getenv("DB_COMMAND_TIMEOUT", "60")),
-        }
+        self.db_config = get_db_config()
+
+        # Pool configuration from environment
+        self.db_config["min_size"] = int(os.getenv("DB_POOL_MIN_SIZE", "10"))
+        self.db_config["max_size"] = int(os.getenv("DB_POOL_MAX_SIZE", "20"))
+        self.db_config["command_timeout"] = int(os.getenv("DB_COMMAND_TIMEOUT", "60"))
 
     async def initialize(self):
         """Initialize database connection pool"""
@@ -61,6 +58,7 @@ class DatabaseManager:
                 min_size=self.db_config["min_size"],
                 max_size=self.db_config["max_size"],
                 command_timeout=self.db_config["command_timeout"],
+                statement_cache_size=0,  # Disable prepared statements for Supabase
             )
             logger.info("Database connection pool initialized successfully")
         except Exception as e:

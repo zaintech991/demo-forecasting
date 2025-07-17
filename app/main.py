@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from app.api import app as api_app
 from dotenv import load_dotenv
+from database.connection import db_manager
 
 load_dotenv()
 
@@ -34,6 +35,11 @@ def professional_dashboard():
 def enhanced_dashboard():
     return FileResponse("static/enhanced_index.html")
 
+# Serve enhanced multi-dimensional dashboard
+@app.get("/enhanced_multi_dimensional.html")
+def enhanced_multi_dimensional():
+    return FileResponse("static/enhanced_multi_dimensional.html")
+
 
 # Mount the API under /api
 app.mount("/api", api_app)
@@ -53,12 +59,6 @@ except ImportError as e:
 async def debug_data():
     """Debug endpoint to find valid data combinations"""
     try:
-        import asyncpg
-
-        DATABASE_URL = os.getenv(
-            "DATABASE_URL", "postgresql://user:password@localhost:5432/dbname"
-        )
-        conn = await asyncpg.connect(DATABASE_URL)
         # Get some sample data
         query = """
         SELECT DISTINCT 
@@ -73,8 +73,8 @@ async def debug_data():
         ORDER BY record_count DESC
         LIMIT 10
         """
-        records = await conn.fetch(query)
-        await conn.close()
+        async with db_manager.get_connection() as conn:
+            records = await conn.fetch(query)
         return {
             "available_combinations": [
                 {

@@ -1,0 +1,251 @@
+product_id,product_name,original_product_id,management_group_id,first_category_id,second_category_id,third_category_id
+38,"Milk, Whole, 1 Gallon",38,0,5,6,65
+834,"Eggs, Large, Dozen",834,0,28,72,154
+411,"Bread, White, Loaf",411,0,28,72,218
+686,"Bananas, 1 lb",686,2,0,21,221
+580,"Chicken Breast, 1 lb",580,2,29,76,60
+596,"Ground Beef, 1 lb",596,2,29,76,60
+740,"Apples, 1 lb",740,2,29,76,60
+379,"Orange Juice, 1 qt",379,2,29,76,231
+4,"Yogurt, Plain, 32 oz",4,2,29,78,82
+600,"Butter, Salted, 1 lb",600,2,29,78,157
+699,"Cheddar Cheese, 8 oz",699,2,30,75,191
+548,"Broccoli, 1 lb",548,3,11,62,182
+72,"Carrots, 1 lb",72,3,25,71,213
+644,"Potatoes, 5 lb",644,4,23,10,17
+638,"Onions, 3 lb",638,5,16,25,94
+496,"Tomatoes, 1 lb",496,5,16,25,101
+296,"Lettuce, Romaine",296,5,16,25,103
+631,"Spinach, 8 oz",631,5,16,25,103
+310,"Strawberries, 1 lb",310,5,16,25,105
+633,"Blueberries, 6 oz",633,5,16,25,105
+345,"Grapes, 1 lb",345,5,16,26,96
+291,"Oranges, 1 lb",291,5,16,27,98
+635,"Pasta, Spaghetti, 1 lb",635,5,16,27,104
+194,"Rice, White, 2 lb",194,5,18,80,109
+764,"Cereal, Oats, 18 oz",764,5,18,80,111
+783,"Coca-Cola, 12 Pack",783,5,22,81,56
+117,"Peanut Butter, 16 oz",117,6,4,28,1
+796,"Jelly, Grape, 18 oz",796,6,4,28,1
+19,"Mayonnaise, 30 oz",19,6,4,28,81
+21,"Ketchup, 20 oz",21,6,4,28,81
+70,"Mustard, 14 oz",70,6,4,28,81
+190,"Chicken Thighs, 1 lb",190,6,4,28,131
+18,"Turkey Breast, 1 lb",18,6,4,28,142
+215,"Bacon, 12 oz",215,6,4,28,149
+136,"Sausage, 16 oz",136,6,4,28,161
+775,"Ham, Sliced, 1 lb",775,6,4,28,167
+843,"Salmon Fillet, 1 lb",843,6,4,28,167
+554,"Tilapia Fillet, 1 lb",554,6,4,28,168
+810,"Shrimp, 1 lb",810,6,4,28,168
+207,"Tuna, Canned, 5 oz",207,6,4,28,179
+500,"Sardines, Canned, 3.75 oz",500,6,4,28,179
+118,"Almonds, 8 oz",118,6,4,28,180
+23,"Walnuts, 8 oz",23,6,4,53,58
+578,"Cashews, 8 oz",578,6,4,53,58
+41,"Peanuts, 16 oz",41,6,4,53,77
+90,"Sunflower Seeds, 8 oz",90,6,4,53,77
+26,"Pumpkin Seeds, 8 oz",26,6,4,53,156
+214,"Raisins, 12 oz",214,6,8,8,9
+76,"Dried Cranberries, 6 oz",76,6,8,29,113
+201,"Granola Bars, 6 ct",201,6,8,29,113
+193,"Oatmeal, Instant, 10 ct",193,6,8,29,114
+253,"Bagels, 6 ct",253,6,10,33,83
+129,"English Muffins, 6 ct",129,6,10,33,181
+672,"Tortillas, Flour, 10 ct",672,6,10,38,173
+719,"Tortillas, Corn, 10 ct",719,6,10,57,205
+104,"Pita Bread, 6 ct",104,6,20,50,2
+300,"Hamburger Buns, 8 ct",300,6,20,50,24
+166,"Hot Dog Buns, 8 ct",166,6,20,50,59
+567,"Croissants, 4 ct",567,6,20,50,59
+6,"Danish, 4 ct",6,6,20,50,170
+127,"Muffins, Blueberry, 4 ct",127,6,20,58,172
+223,"Donuts, Glazed, 6 ct",223,6,20,58,172
+486,"Coffee, Ground, 12 oz",486,6,20,68,63
+122,"Tea Bags, 20 ct",122,6,20,68,127
+769,"Hot Chocolate Mix, 10 ct",769,6,20,68,176
+439,"Sugar, Granulated, 4 lb",439,6,21,61,16
+93,"Brown Sugar, 2 lb",93,6,21,61,223
+691,"Powdered Sugar, 2 lb",691,6,21,64,19
+259,"Honey, 12 oz",259,6,21,64,123
+489,"Maple Syrup, 12 oz",489,6,21,64,123
+806,"Pancake Mix, 32 oz",806,6,21,64,184
+419,"Waffles, Frozen, 10 ct",419,6,24,51,153
+370,"French Toast, Frozen, 6 ct",370,6,24,66,199
+712,"Cinnamon Rolls, 8 ct",712,6,24,66,199
+768,"Butter, Unsalted, 1 lb",768,0,5,5,6
+381,"Cream Cheese, 8 oz",381,0,28,3,7
+62,"Sour Cream, 16 oz",62,0,28,52,61
+63,"Cottage Cheese, 16 oz",63,0,28,52,169
+830,"Mozzarella Cheese, 8 oz",830,1,7,16,44
+415,"Swiss Cheese, 8 oz",415,1,7,17,42
+362,"Provolone Cheese, 8 oz",362,1,7,17,51
+653,"Parmesan Cheese, 8 oz",653,1,7,17,54
+841,"Colby Jack Cheese, 8 oz",841,2,0,13,27
+452,"American Cheese, 8 oz",452,2,29,76,60
+121,"Ice Cream, Vanilla, 1.5 qt",121,2,30,74,195
+133,"Ice Cream, Chocolate, 1.5 qt",133,2,31,77,73
+373,"Frozen Yogurt, 1.5 qt",373,2,31,79,22
+110,"Popsicles, 12 ct",110,2,31,79,121
+258,"Frozen Pizza, 12 in",258,2,31,79,121
+151,"Frozen Vegetables, Mixed, 16 oz",151,2,31,79,158
+304,"Frozen Peas, 16 oz",304,2,31,79,227
+670,"Frozen Corn, 16 oz",670,2,31,79,227
+7,"Frozen Green Beans, 16 oz",7,2,31,79,228
+9,"Frozen Spinach, 10 oz",9,2,31,79,232
+829,"Frozen Berries, 12 oz",829,3,11,35,71
+487,"Frozen French Fries, 32 oz",487,3,11,62,182
+793,"Frozen Hash Browns, 32 oz",793,3,14,40,146
+627,"Frozen Chicken Nuggets, 25 oz",627,4,13,1,214
+706,"Frozen Fish Sticks, 18 oz",706,4,27,0,0
+816,"Frozen Meatballs, 14 oz",816,4,27,0,0
+138,"Frozen Lasagna, 32 oz",138,4,27,37,126
+711,"Frozen Burritos, 8 ct",711,4,27,37,126
+58,"Frozen Breakfast Sandwiches, 4 ct",58,5,15,42,89
+592,"Frozen Waffles, 10 ct",592,5,15,43,11
+858,"Frozen Pancakes, 12 ct",858,5,15,43,11
+247,"Frozen Pie, Apple, 37 oz",247,5,16,25,94
+556,"Frozen Pie, Pumpkin, 37 oz",556,5,16,25,94
+634,"Frozen Pie, Cherry, 37 oz",634,5,16,25,99
+422,"Frozen Pie, Pecan, 37 oz",422,5,16,25,101
+470,"Frozen Pie, Blueberry, 37 oz",470,5,16,25,101
+249,"Apple Sauce, 24 oz",249,5,16,25,103
+366,"Fruit Cups, Mixed, 4 ct",366,5,16,25,103
+717,"Mandarin Oranges, Canned, 15 oz",717,5,16,25,103
+290,"Pineapple, Canned, 20 oz",290,5,16,25,105
+563,"Peaches, Canned, 15 oz",563,5,16,25,105
+295,"Pears, Canned, 15 oz",295,5,16,25,106
+636,"Fruit Cocktail, Canned, 15 oz",636,5,16,25,106
+250,"Tomato Sauce, 15 oz",250,5,16,27,97
+424,"Tomato Paste, 6 oz",424,5,16,27,97
+293,"Diced Tomatoes, 14.5 oz",293,5,16,27,100
+292,"Stewed Tomatoes, 14.5 oz",292,5,16,27,104
+374,"Crushed Tomatoes, 28 oz",374,5,18,45,93
+321,"Spaghetti Sauce, 24 oz",321,5,18,80,109
+368,"Alfredo Sauce, 15 oz",368,5,18,80,112
+765,"Pizza Sauce, 14 oz",765,5,18,80,112
+27,"Salsa, 16 oz",27,6,4,28,10
+79,"Guacamole, 8 oz",79,6,4,28,10
+140,"Hummus, 10 oz",140,6,4,28,10
+213,"Pickles, Dill, 24 oz",213,6,4,28,81
+738,"Olives, Black, 6 oz",738,6,4,28,81
+94,"Olives, Green, 6 oz",94,6,4,28,216
+16,"Capers, 3.5 oz",16,6,8,29,113
+108,"Artichoke Hearts, 14 oz",108,6,8,29,113
+200,"Hearts of Palm, 14 oz",200,6,8,29,113
+220,"Roasted Red Peppers, 12 oz",220,6,8,29,113
+219,"Mushrooms, Sliced, 8 oz",219,6,8,29,114
+99,"Green Beans, Canned, 14.5 oz",99,6,8,29,115
+114,"Corn, Canned, 15 oz",114,6,10,33,72
+663,"Peas, Canned, 15 oz",663,6,10,33,186
+822,"Carrots, Canned, 14.5 oz",822,6,20,50,183
+847,"Potatoes, Canned, 15 oz",847,6,20,50,229
+17,"Baked Beans, 16 oz",17,6,20,58,172
+499,"Chili, Canned, 15 oz",499,6,20,68,18
+74,"Soup, Chicken Noodle, 10.5 oz",74,6,21,61,16
+628,"Soup, Tomato, 10.75 oz",628,6,21,61,16
+622,"Soup, Vegetable, 10.5 oz",622,6,21,61,178
+60,"Soup, Cream of Mushroom, 10.5 oz",60,6,21,61,224
+216,"Soup, Clam Chowder, 15 oz",216,6,21,64,123
+285,"Soup, Beef Stew, 20 oz",285,6,24,51,203
+802,"Soup, Lentil, 15 oz",802,0,5,7,66
+473,"Soup, Minestrone, 15 oz",473,1,7,17,46
+549,"Soup, Split Pea, 15 oz",549,2,31,79,230
+11,"Soup, Black Bean, 15 oz",11,5,18,80,86
+12,"Soup, Chicken Tortilla, 15 oz",12,5,18,80,86
+145,"Soup, Broccoli Cheddar, 15 oz",145,5,18,80,110
+181,"Soup, Potato Leek, 15 oz",181,5,18,80,112
+135,"Soup, Italian Wedding, 15 oz",135,6,4,28,167
+240,"Soup, French Onion, 15 oz",240,6,4,28,180
+363,"Soup, Chicken Rice, 15 oz",363,6,4,53,77
+774,"Soup, Vegetable Beef, 15 oz",774,6,4,53,77
+77,"Soup, Cream of Chicken, 10.5 oz",77,6,8,29,113
+150,"Soup, Cream of Celery, 10.5 oz",150,6,8,29,116
+650,"Soup, Cream of Broccoli, 10.5 oz",650,6,10,33,160
+115,"Soup, Cream of Potato, 10.5 oz",115,6,10,33,181
+715,"Soup, Cream of Asparagus, 10.5 oz",715,6,10,38,190
+212,"Soup, Cream of Shrimp, 10.5 oz",212,6,20,50,229
+728,"Soup, Cream of Tomato, 10.5 oz",728,6,20,58,74
+416,"Soup, Cream of Onion, 10.5 oz",416,6,24,51,145
+645,"Soup, Cream of Carrot, 10.5 oz",645,6,24,69,139
+430,"Soup, Cream of Cauliflower, 10.5 oz",430,1,7,17,48
+688,"Soup, Cream of Spinach, 10.5 oz",688,2,31,79,230
+684,"Soup, Cream of Pea, 10.5 oz",684,5,15,43,88
+71,"Soup, Cream of Corn, 10.5 oz",71,6,4,28,216
+116,"Soup, Cream of Mushroom, 10.5 oz",116,6,10,33,177
+682,"Soup, Cream of Chicken, 10.5 oz",682,6,10,38,173
+666,"Soup, Cream of Celery, 10.5 oz",666,6,21,64,123
+467,"Soup, Cream of Broccoli, 10.5 oz",467,0,5,6,65
+396,"Soup, Cream of Potato, 10.5 oz",396,1,7,17,52
+716,"Soup, Cream of Asparagus, 10.5 oz",716,2,31,73,192
+831,"Soup, Cream of Shrimp, 10.5 oz",831,6,24,39,129
+536,"Soup, Cream of Tomato, 10.5 oz",536,0,5,6,65
+694,"Soup, Cream of Onion, 10.5 oz",694,0,5,6,65
+855,"Soup, Cream of Carrot, 10.5 oz",855,0,5,6,65
+707,"Soup, Cream of Cauliflower, 10.5 oz",707,1,7,17,42
+826,"Soup, Cream of Spinach, 10.5 oz",826,1,7,17,42
+803,"Soup, Cream of Pea, 10.5 oz",803,1,7,17,54
+15,"Soup, Cream of Corn, 10.5 oz",15,2,0,13,25
+257,"Soup, Cream of Mushroom, 10.5 oz",257,2,0,13,26
+98,"Soup, Cream of Chicken, 10.5 oz",98,2,0,13,27
+53,"Soup, Cream of Celery, 10.5 oz",53,2,0,19,135
+348,"Soup, Cream of Broccoli, 10.5 oz",348,2,30,74,222
+599,"Soup, Cream of Potato, 10.5 oz",599,2,30,75,193
+669,"Soup, Cream of Asparagus, 10.5 oz",669,2,30,75,193
+5,"Soup, Cream of Shrimp, 10.5 oz",5,2,31,79,132
+788,"Soup, Cream of Tomato, 10.5 oz",788,3,11,31,80
+100,"Soup, Cream of Onion, 10.5 oz",100,3,11,60,15
+155,"Soup, Cream of Carrot, 10.5 oz",155,3,11,60,15
+8,"Soup, Cream of Cauliflower, 10.5 oz",8,3,25,70,210
+668,"Soup, Cream of Spinach, 10.5 oz",668,3,25,71,213
+817,"Soup, Cream of Pea, 10.5 oz",817,4,27,37,126
+698,"Toothpaste, 6 oz",698,5,15,43,11
+525,"Toothbrush, Soft",525,5,15,43,88
+819,"Shampoo, 12 oz",819,5,15,44,90
+632,"Conditioner, 12 oz",632,5,16,27,98
+630,"Bar Soap, 4 oz",630,5,16,27,100
+425,"Body Wash, 16 oz",425,5,16,27,104
+673,"Deodorant, 2.6 oz",673,5,18,80,86
+825,"Razor, Disposable, 5 ct",825,5,18,80,87
+369,"Shaving Cream, 7 oz",369,5,18,80,112
+823,"Facial Tissue, 120 ct",823,5,18,80,112
+88,"Paper Towels, 2 Rolls",88,6,4,28,10
+303,"Toilet Paper, 4 Rolls",303,6,4,28,10
+380,"Laundry Detergent, 50 oz",380,6,4,28,131
+351,"Fabric Softener, 32 oz",351,6,4,28,142
+797,"Dish Soap, 16 oz",797,6,4,28,163
+608,"Sponges, 3 ct",608,6,4,28,174
+192,"Trash Bags, 13 gal, 20 ct",192,6,8,8,9
+109,"Aluminum Foil, 75 ft",109,6,8,29,113
+298,"Plastic Wrap, 200 ft",298,6,8,29,113
+78,"Sandwich Bags, 50 ct",78,6,8,29,114
+276,"Freezer Bags, 20 ct",276,6,8,29,116
+480,"Storage Containers, 3 ct",480,6,8,29,116
+642,"Light Bulbs, 4 pk",642,6,20,50,24
+359,"Batteries, AA, 8 pk",359,6,20,56,13
+61,"Batteries, AAA, 8 pk",61,6,21,61,16
+335,"Hand Sanitizer, 8 oz",335,6,21,64,76
+574,"Disinfecting Wipes, 35 ct",574,6,24,51,153
+413,"All-Purpose Cleaner, 32 oz",413,6,24,66,199
+481,"Glass Cleaner, 32 oz",481,6,24,69,78
+676,"Floor Cleaner, 32 oz",676,6,24,69,139
+469,"Mop, Standard",469,6,24,69,159
+414,"Broom, Standard",414,1,7,17,42
+222,"Dustpan, Standard",222,6,21,61,215
+420,"Plunger, Standard",420,6,24,51,145
+569,"Toilet Bowl Cleaner, 24 oz",569,6,24,69,139
+306,"Air Freshener, 8 oz",306,1,7,17,51
+426,"Candle, Scented, 3 oz",426,5,16,25,103
+95,"Matches, 32 ct",95,5,18,82,40
+443,"Lighter, Utility",443,5,18,82,40
+853,"Bandages, 30 ct",853,6,8,29,116
+760,"Antibacterial Ointment, 1 oz",760,6,10,57,205
+468,"Pain Reliever, 24 ct",468,6,21,64,123
+410,"Cough Drops, 30 ct",410,0,5,7,67
+509,"Thermometer, Digital",509,0,5,24,69
+657,"Cotton Swabs, 170 ct",657,0,28,59,165
+30,"Cotton Balls, 100 ct",30,0,28,72,154
+745,"Nail Clippers, Standard",745,0,28,72,218
+319,"Tweezers, Standard",319,1,3,12,79
+862,"Comb, Standard",862,1,3,15,29
+228,"Hair Brush, Standard",228,5,16,25,103

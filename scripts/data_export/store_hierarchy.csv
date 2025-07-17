@@ -1,0 +1,26 @@
+store_id,store_name,original_store_id,city_id
+0,Walmart Supercenter,0,0
+1,Target,1,0
+2,Kroger,2,0
+8,Costco,8,0
+12,Safeway,12,0
+18,Publix,18,0
+19,H-E-B,19,0
+24,Albertsons,24,0
+29,Tom Thumb,29,0
+34,Whole Foods,34,0
+35,Randalls,35,0
+41,Winn-Dixie,41,0
+46,Meijer,46,0
+53,Harris Teeter,53,0
+55,Trader Joe's,55,0
+56,QFC,56,0
+57,Giant Eagle,57,0
+58,Hy-Vee,58,0
+59,Food Lion,59,0
+60,Piggly Wiggly,60,0
+61,Aldi,61,0
+62,Sams Club,62,0
+67,Sprouts,67,0
+74,Food 4 Less,74,0
+78,WinCo Foods,78,0

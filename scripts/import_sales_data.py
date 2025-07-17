@@ -1,6 +1,9 @@
 import pandas as pd
 import psycopg2
 from datetime import datetime
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 # Read the CSV
 csv_path = "data_export/sales_data_chunks/sales_data_part_001.csv"
@@ -48,12 +51,18 @@ if "created_at" not in df.columns:
 df = df[required_cols]
 
 # Connect to the database
+dbname = os.getenv("DB_NAME")
+user = os.getenv("DB_USER")
+password = os.getenv("DB_PASSWORD")
+host = os.getenv("DB_HOST")
+port = os.getenv("DB_PORT")
+
 conn = psycopg2.connect(
-    dbname="freshretail",
-    user="postgres",
-    password="boolmind",
-    host="localhost",
-    port=5432,
+    dbname=dbname,
+    user=user,
+    password=password,
+    host=host,
+    port=port,
 )
 cur = conn.cursor()
 

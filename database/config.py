@@ -12,12 +12,20 @@ load_dotenv()
 
 # Database configuration
 DB_CONFIG = {
-    "host": os.getenv("DB_HOST", "localhost"),
-    "port": int(os.getenv("DB_PORT", "5432")),
-    "database": os.getenv("DB_NAME", "dbname"),
-    "user": os.getenv("DB_USER", "user"),
-    "password": os.getenv("DB_PASSWORD", "password"),
+    "host": os.getenv("DB_HOST"),
+    "port": int(os.getenv("DB_PORT") or 5432),
+    "database": os.getenv("DB_NAME"),
+    "user": os.getenv("DB_USER"),
+    "password": os.getenv("DB_PASSWORD"),
 }
+
+# Check required variables
+required_vars = ["DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD"]
+var_mapping = {"DB_HOST": "host", "DB_NAME": "database", "DB_USER": "user", "DB_PASSWORD": "password"}
+for var in required_vars:
+    config_key = var_mapping[var]
+    if not DB_CONFIG[config_key]:
+        raise ValueError(f"{var} environment variable is required")
 
 # Connection pool settings
 POOL_CONFIG = {

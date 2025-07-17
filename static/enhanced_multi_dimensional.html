@@ -1,0 +1,2244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Dimensional Forecasting Dashboard</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23667eea%22/><text x=%2250%22 y=%2265%22 font-family=%22Arial%22 font-size=%2260%22 fill=%22white%22 text-anchor=%22middle%22>📊</text></svg>">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    
+    <style>
+        .dashboard-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .dashboard-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .selection-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .multi-select {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1rem;
+            background: #f8f9fa;
+        }
+        
+        .selected-item {
+            background: #667eea;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            margin: 0.25rem;
+            display: inline-block;
+            font-size: 0.9rem;
+        }
+        
+        .selected-item .remove-btn {
+            background: rgba(255,255,255,0.3);
+            border: none;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            margin-left: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .forecast-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 1rem 3rem;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        .forecast-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .demand-forecast-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: none;
+            color: white;
+            padding: 1rem 3rem;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        .demand-forecast-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(240, 147, 251, 0.6);
+        }
+        
+        .results-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-top: 2rem;
+        }
+        
+        .insight-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .insight-card h5 {
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .insight-card .insight-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .insight-card .metrics {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+        }
+        
+        .insight-card .metric {
+            text-align: center;
+        }
+        
+        .insight-card .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .insight-card .metric-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .demand-insight-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .demand-insight-card.critical {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+        }
+        
+        .demand-insight-card.high {
+            background: linear-gradient(135deg, #ffa726 0%, #fb8c00 100%);
+        }
+        
+        .demand-insight-card.medium {
+            background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%);
+        }
+        
+        .demand-insight-card.low {
+            background: linear-gradient(135deg, #66bb6a 0%, #4caf50 100%);
+        }
+        
+        .stockout-risk-gauge {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto;
+        }
+        
+        .inventory-status-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+            border-left: 5px solid #667eea;
+        }
+        
+        .inventory-status-card.critical {
+            border-left-color: #ff6b6b;
+        }
+        
+        .inventory-status-card.high {
+            border-left-color: #ffa726;
+        }
+        
+        .inventory-status-card.medium {
+            border-left-color: #42a5f5;
+        }
+        
+        .inventory-status-card.low {
+            border-left-color: #66bb6a;
+        }
+        
+        .location-info {
+            margin-bottom: 1rem;
+        }
+        
+        .location-info .badge {
+            font-size: 0.8rem;
+            font-weight: 500;
+            padding: 0.4rem 0.8rem;
+            border-radius: 12px;
+        }
+        
+        .location-info .badge.bg-secondary {
+            background-color: #6c757d !important;
+        }
+        
+        .location-info .badge.bg-info {
+            background-color: #0dcaf0 !important;
+        }
+        
+        .weather-controls-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid #17a2b8;
+        }
+        
+        .weather-section-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid #28a745;
+            height: 100%;
+        }
+        
+        .weather-summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .weather-recommendation-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #007bff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .weather-recommendation-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        .weather-recommendation-card.increase-stock {
+            border-left-color: #28a745;
+        }
+        
+        .weather-recommendation-card.decrease-stock {
+            border-left-color: #dc3545;
+        }
+        
+        .weather-recommendation-card.bundle-opportunity {
+            border-left-color: #ffc107;
+        }
+        
+        .promotional-analysis-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .promotional-analysis-card.highly-recommended {
+            border-left: 4px solid #28a745;
+        }
+        
+        .promotional-analysis-card.recommended {
+            border-left: 4px solid #17a2b8;
+        }
+        
+        .promotional-analysis-card.moderate {
+            border-left: 4px solid #ffc107;
+        }
+        
+        .promotional-analysis-card.not-recommended {
+            border-left: 4px solid #dc3545;
+        }
+        
+        .bundle-recommendation-card {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .seasonal-insight-card {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .weather-metric {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            margin: 0.5rem;
+        }
+        
+        .weather-metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .weather-metric-label {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.8);
+        }
+        
+        .weather-alert {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            border-left: 4px solid;
+        }
+        
+        .weather-alert.alert-success {
+            background: #d4edda;
+            border-left-color: #28a745;
+            color: #155724;
+        }
+        
+        .weather-alert.alert-warning {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+            color: #856404;
+        }
+        
+        .weather-alert.alert-danger {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+            color: #721c24;
+        }
+        
+        .weather-alert.alert-info {
+            background: #cce7f0;
+            border-left-color: #17a2b8;
+            color: #0c5460;
+        }
+        
+        .recommendation-card {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .recommendation-card.critical {
+            background: linear-gradient(135deg, #ffcccb 0%, #ffb3ba 100%);
+        }
+        
+        .recommendation-card.high {
+            background: linear-gradient(135deg, #ffd1a9 0%, #ffcc95 100%);
+        }
+        
+        .comparison-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+        }
+        
+        .comparison-card h6 {
+            color: #667eea;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 2rem 0;
+        }
+        
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .loading-spinner .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        
+        .summary-stats {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .summary-stats h4 {
+            color: #333;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .summary-stats .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .summary-stats .stat-item {
+            text-align: center;
+        }
+        
+        .summary-stats .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+        
+        .summary-stats .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .nav-tabs {
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .nav-tabs .nav-link {
+            color: #667eea;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .nav-tabs .nav-link.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+        }
+        
+        .tab-content {
+            padding: 2rem 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="dashboard-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="dashboard-title">
+                        <i class="fas fa-chart-line me-3"></i>
+                        Multi-Dimensional Forecasting
+                    </h1>
+                    <p class="lead mb-0">Advanced forecasting with real-time insights across multiple dimensions</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button class="btn btn-light btn-lg" onclick="window.location.href='/'">
+                        <i class="fas fa-home me-2"></i>Dashboard
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="py-5" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh;">
+        <div class="container">
+            
+            <!-- Selection Panel -->
+            <div class="selection-card">
+                <h3 class="text-center mb-4">
+                    <i class="fas fa-sliders-h me-2"></i>
+                    Select Dimensions for Forecasting
+                </h3>
+                
+                <div class="row">
+                    <!-- Cities Selection -->
+                    <div class="col-md-4">
+                        <h5><i class="fas fa-city me-2"></i>Cities</h5>
+                        <div class="multi-select" id="citiesContainer">
+                            <select class="form-select" id="citySelect">
+                                <option value="">Loading cities...</option>
+                            </select>
+                            <button class="btn btn-sm btn-primary mt-2" onclick="addCity()">Add City</button>
+                            <div id="selectedCities" class="mt-2"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Stores Selection -->
+                    <div class="col-md-4">
+                        <h5><i class="fas fa-store me-2"></i>Stores</h5>
+                        <div class="multi-select" id="storesContainer">
+                            <select class="form-select" id="storeSelect">
+                                <option value="">Loading stores...</option>
+                            </select>
+                            <button class="btn btn-sm btn-primary mt-2" onclick="addStore()">Add Store</button>
+                            <div id="selectedStores" class="mt-2"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Products Selection -->
+                    <div class="col-md-4">
+                        <h5><i class="fas fa-box me-2"></i>Products</h5>
+                        <div class="multi-select" id="productsContainer">
+                            <select class="form-select" id="productSelect">
+                                <option value="">Loading products...</option>
+                            </select>
+                            <button class="btn btn-sm btn-primary mt-2" onclick="addProduct()">Add Product</button>
+                            <div id="selectedProducts" class="mt-2"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <label for="forecastDays" class="form-label">Forecast Days</label>
+                        <input type="range" class="form-range" id="forecastDays" min="7" max="90" value="30">
+                        <div class="d-flex justify-content-between">
+                            <span>7 days</span>
+                            <span id="forecastDaysValue">30 days</span>
+                            <span>90 days</span>
+                        </div>
+                    </div>
+                    <div class="col-md-8 d-flex align-items-end">
+                        <div class="row w-100">
+                            <div class="col-md-6">
+                                <button class="forecast-btn w-100" onclick="generateForecast()">
+                                    <i class="fas fa-magic me-2"></i>Sales Forecast
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <button class="demand-forecast-btn w-100" onclick="generateDemandForecast()">
+                                    <i class="fas fa-boxes me-2"></i>Demand & Inventory
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Loading Spinner -->
+            <div class="loading-spinner" id="loadingSpinner">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3">Generating forecast...</p>
+            </div>
+            
+            <!-- Results Container -->
+            <div class="results-container" id="resultsContainer" style="display: none;">
+                
+                <!-- Navigation Tabs -->
+                <ul class="nav nav-tabs" id="forecastTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="sales-tab" data-bs-toggle="tab" data-bs-target="#sales" type="button" role="tab">
+                            <i class="fas fa-chart-line me-2"></i>Sales Forecast
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="demand-tab" data-bs-toggle="tab" data-bs-target="#demand" type="button" role="tab">
+                            <i class="fas fa-boxes me-2"></i>Demand & Inventory
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="weather-tab" data-bs-toggle="tab" href="#weather-content" role="tab">
+                            <i class="fas fa-cloud-sun me-2"></i>Weather & Holiday Forecasting
+                        </a>
+                    </li>
+                </ul>
+                
+                <!-- Tab Content -->
+                <div class="tab-content" id="forecastTabContent">
+                    
+                    <!-- Sales Forecast Tab -->
+                    <div class="tab-pane fade show active" id="sales" role="tabpanel">
+                        
+                        <!-- Summary Stats -->
+                        <div class="summary-stats" id="summaryStats">
+                            <h4><i class="fas fa-chart-bar me-2"></i>Sales Forecast Summary</h4>
+                            <div class="stat-grid" id="statGrid">
+                                <!-- Stats will be populated here -->
+                            </div>
+                        </div>
+                        
+                        <!-- Forecast Chart -->
+                        <div class="chart-container">
+                            <canvas id="forecastChart"></canvas>
+                        </div>
+                        
+                        <!-- Insights Section -->
+                        <div class="row" id="insightsSection">
+                            <div class="col-12">
+                                <h3 class="text-center mb-4">
+                                    <i class="fas fa-lightbulb me-2"></i>
+                                    Business Insights
+                                </h3>
+                                <div id="insightsContainer">
+                                    <!-- Insights will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Comparative Analysis -->
+                        <div class="row mt-4" id="comparativeSection">
+                            <div class="col-12">
+                                <h3 class="text-center mb-4">
+                                    <i class="fas fa-balance-scale me-2"></i>
+                                    Comparative Analysis
+                                </h3>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="comparison-card">
+                                            <h6>City Performance</h6>
+                                            <div id="cityComparison"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="comparison-card">
+                                            <h6>Store Performance</h6>
+                                            <div id="storeComparison"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="comparison-card">
+                                            <h6>Product Performance</h6>
+                                            <div id="productComparison"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Comparative Insights -->
+                        <div class="row mt-4" id="comparativeInsights">
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    <h5><i class="fas fa-info-circle me-2"></i>Key Insights</h5>
+                                    <div id="keyInsights"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                    <!-- Demand & Inventory Tab -->
+                    <div class="tab-pane fade" id="demand" role="tabpanel">
+                        
+                        <!-- Inventory Status Overview -->
+                        <div class="summary-stats" id="inventoryOverview">
+                            <h4><i class="fas fa-warehouse me-2"></i>Inventory Status Overview</h4>
+                            <div class="stat-grid" id="inventoryStatGrid">
+                                <!-- Inventory stats will be populated here -->
+                            </div>
+                        </div>
+                        
+                        <!-- Stockout Risk Chart -->
+                        <div class="chart-container">
+                            <canvas id="stockoutRiskChart"></canvas>
+                        </div>
+                        
+                        <!-- Demand Forecast Chart -->
+                        <div class="chart-container">
+                            <canvas id="demandForecastChart"></canvas>
+                        </div>
+                        
+                        <!-- Inventory Status Cards -->
+                        <div class="row mt-4" id="inventoryStatusSection">
+                            <div class="col-12">
+                                <h3 class="text-center mb-4">
+                                    <i class="fas fa-clipboard-list me-2"></i>
+                                    Inventory Status
+                                </h3>
+                                <div id="inventoryStatusContainer">
+                                    <!-- Inventory status cards will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Demand Insights -->
+                        <div class="row mt-4" id="demandInsightsSection">
+                            <div class="col-12">
+                                <h3 class="text-center mb-4">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    Demand Insights & Alerts
+                                </h3>
+                                <div id="demandInsightsContainer">
+                                    <!-- Demand insights will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Inventory Recommendations -->
+                        <div class="row mt-4" id="recommendationsSection">
+                            <div class="col-12">
+                                <h3 class="text-center mb-4">
+                                    <i class="fas fa-tasks me-2"></i>
+                                    Inventory Recommendations
+                                </h3>
+                                <div id="recommendationsContainer">
+                                    <!-- Recommendations will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                    <!-- Weather & Holiday Forecasting Tab -->
+                    <div class="tab-pane fade" id="weather-content" role="tabpanel">
+                        <!-- Weather Controls -->
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <div class="weather-controls-card">
+                                    <h5><i class="fas fa-sliders-h me-2"></i>Promotional Analysis Controls</h5>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <label for="discountPercentage" class="form-label">Discount Percentage</label>
+                                            <div class="input-group">
+                                                <input type="number" class="form-control" id="discountPercentage" value="5" min="0" max="50" step="1">
+                                                <span class="input-group-text">%</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="promotionDuration" class="form-label">Promotion Duration</label>
+                                            <div class="input-group">
+                                                <input type="number" class="form-control" id="promotionDuration" value="7" min="1" max="30" step="1">
+                                                <span class="input-group-text">days</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">&nbsp;</label>
+                                            <button class="btn btn-primary d-block" onclick="generateWeatherForecast()">
+                                                <i class="fas fa-cloud-sun me-2"></i>Generate Weather Forecast
+                                            </button>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">&nbsp;</label>
+                                            <button class="btn btn-info d-block" onclick="showWeatherNotifications()">
+                                                <i class="fas fa-bell me-2"></i>Show Weather Alerts
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Weather Summary Cards -->
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <div id="weatherSummaryCards"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Weather Recommendations -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="weather-section-card">
+                                    <h5><i class="fas fa-thermometer-half me-2"></i>Weather-Based Recommendations</h5>
+                                    <div id="weatherRecommendationsContainer"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="weather-section-card">
+                                    <h5><i class="fas fa-gift me-2"></i>Holiday Impact Analysis</h5>
+                                    <div id="holidayAnalysisContainer"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Promotional Analysis -->
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <div class="weather-section-card">
+                                    <h5><i class="fas fa-percentage me-2"></i>Promotional Impact Analysis</h5>
+                                    <div id="promotionalAnalysisContainer"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Bundle Recommendations -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="weather-section-card">
+                                    <h5><i class="fas fa-boxes me-2"></i>Weather-Based Bundle Recommendations</h5>
+                                    <div id="bundleRecommendationsContainer"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="weather-section-card">
+                                    <h5><i class="fas fa-calendar-alt me-2"></i>Seasonal Insights</h5>
+                                    <div id="seasonalInsightsContainer"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Weather Notification Modal -->
+    <div class="modal fade" id="weatherNotificationModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-cloud-sun me-2"></i>Weather-Based Alerts & Notifications
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="weatherNotificationContent"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Weather Detail Modal -->
+    <div class="modal fade" id="productWeatherModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-box me-2"></i>Product Weather Analysis
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="productWeatherContent"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Global variables
+        let selectedCities = [];
+        let selectedStores = [];
+        let selectedProducts = [];
+        let forecastChart = null;
+        let stockoutRiskChart = null;
+        let demandForecastChart = null;
+        let weatherForecastData = null;
+        
+        // Loading functions
+        function showLoading() {
+            // Create loading overlay if it doesn't exist
+            if (!document.getElementById('loadingOverlay')) {
+                const loadingOverlay = document.createElement('div');
+                loadingOverlay.id = 'loadingOverlay';
+                loadingOverlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.5);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 9999;
+                `;
+                loadingOverlay.innerHTML = `
+                    <div style="background: white; padding: 2rem; border-radius: 10px; text-align: center;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 mb-0">Processing weather forecast...</p>
+                    </div>
+                `;
+                document.body.appendChild(loadingOverlay);
+            }
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+        
+        function hideLoading() {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) {
+                loadingOverlay.style.display = 'none';
+            }
+        }
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDropdownData();
+            setupEventListeners();
+        });
+        
+        function setupEventListeners() {
+            const forecastDaysSlider = document.getElementById('forecastDays');
+            const forecastDaysValue = document.getElementById('forecastDaysValue');
+            
+            forecastDaysSlider.addEventListener('input', function() {
+                forecastDaysValue.textContent = this.value + ' days';
+            });
+        }
+        
+        async function loadDropdownData() {
+            try {
+                // Load cities
+                const citiesResponse = await fetch('/api/cities');
+                const cities = await citiesResponse.json();
+                const citySelect = document.getElementById('citySelect');
+                citySelect.innerHTML = '<option value="">Select a city...</option>';
+                cities.forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city.city_id;
+                    option.textContent = city.city_name;
+                    citySelect.appendChild(option);
+                });
+                
+                // Load stores
+                const storesResponse = await fetch('/api/stores');
+                const stores = await storesResponse.json();
+                const storeSelect = document.getElementById('storeSelect');
+                storeSelect.innerHTML = '<option value="">Select a store...</option>';
+                stores.forEach(store => {
+                    const option = document.createElement('option');
+                    option.value = store.store_id;
+                    option.textContent = `${store.store_name} (${store.city_name || 'Unknown City'})`;
+                    storeSelect.appendChild(option);
+                });
+                
+                // Load products
+                const productsResponse = await fetch('/api/products');
+                const products = await productsResponse.json();
+                const productSelect = document.getElementById('productSelect');
+                productSelect.innerHTML = '<option value="">Select a product...</option>';
+                products.forEach(product => {
+                    const option = document.createElement('option');
+                    option.value = product.product_id;
+                    option.textContent = product.product_name;
+                    productSelect.appendChild(option);
+                });
+                
+            } catch (error) {
+                console.error('Error loading dropdown data:', error);
+            }
+        }
+        
+        function addCity() {
+            const citySelect = document.getElementById('citySelect');
+            const cityId = citySelect.value;
+            const cityName = citySelect.options[citySelect.selectedIndex].text;
+            
+            if (cityId && !selectedCities.find(c => c.id === cityId)) {
+                selectedCities.push({id: cityId, name: cityName});
+                updateSelectedDisplay('selectedCities', selectedCities, removeCity);
+                citySelect.value = '';
+                // Update valid products when cities change
+                updateValidProducts();
+            }
+        }
+        
+        function addStore() {
+            const storeSelect = document.getElementById('storeSelect');
+            const storeId = storeSelect.value;
+            const storeName = storeSelect.options[storeSelect.selectedIndex].text;
+            
+            if (storeId && !selectedStores.find(s => s.id === storeId)) {
+                selectedStores.push({id: storeId, name: storeName});
+                updateSelectedDisplay('selectedStores', selectedStores, removeStore);
+                storeSelect.value = '';
+                // Update valid products when stores change
+                updateValidProducts();
+            }
+        }
+        
+        function addProduct() {
+            const productSelect = document.getElementById('productSelect');
+            const productId = productSelect.value;
+            const productName = productSelect.options[productSelect.selectedIndex].text;
+            
+            if (productId && !selectedProducts.find(p => p.id === productId)) {
+                selectedProducts.push({id: productId, name: productName});
+                updateSelectedDisplay('selectedProducts', selectedProducts, removeProduct);
+                productSelect.value = '';
+            }
+        }
+        
+        function updateSelectedDisplay(containerId, items, removeFunction) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            items.forEach((item, index) => {
+                const span = document.createElement('span');
+                span.className = 'selected-item';
+                span.innerHTML = `
+                    ${item.name}
+                    <button class="remove-btn" onclick="${removeFunction.name}(${index})">×</button>
+                `;
+                container.appendChild(span);
+            });
+        }
+        
+        function removeCity(index) {
+            selectedCities.splice(index, 1);
+            updateSelectedDisplay('selectedCities', selectedCities, removeCity);
+            updateValidProducts();
+        }
+        
+        function removeStore(index) {
+            selectedStores.splice(index, 1);
+            updateSelectedDisplay('selectedStores', selectedStores, removeStore);
+            updateValidProducts();
+        }
+        
+        function removeProduct(index) {
+            selectedProducts.splice(index, 1);
+            updateSelectedDisplay('selectedProducts', selectedProducts, removeProduct);
+        }
+        
+        async function updateValidProducts() {
+            // Only update if we have cities or stores selected
+            if (selectedCities.length === 0 && selectedStores.length === 0) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/valid-products', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        city_ids: selectedCities.map(c => c.id),
+                        store_ids: selectedStores.map(s => s.id)
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const productSelect = document.getElementById('productSelect');
+                    productSelect.innerHTML = '<option value="">Select a product...</option>';
+                    
+                    data.products.forEach(product => {
+                        const option = document.createElement('option');
+                        option.value = product.product_id;
+                        option.textContent = `${product.product_name} (${product.sales_records} records)`;
+                        productSelect.appendChild(option);
+                    });
+                    
+                    // Clear selected products as they might not be valid anymore
+                    selectedProducts = [];
+                    updateSelectedDisplay('selectedProducts', selectedProducts, removeProduct);
+                    
+                    // Show info about available products
+                    console.log(`Updated products: ${data.products.length} products available`);
+                }
+            } catch (error) {
+                console.error('Error updating valid products:', error);
+            }
+        }
+        
+        async function generateForecast() {
+            if (selectedCities.length === 0 || selectedStores.length === 0 || selectedProducts.length === 0) {
+                alert('Please select at least one city, store, and product.');
+                return;
+            }
+            
+            const forecastDays = parseInt(document.getElementById('forecastDays').value);
+            
+            // Show loading
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('resultsContainer').style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/multi-dimensional-forecast', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        city_ids: selectedCities.map(c => c.id),
+                        store_ids: selectedStores.map(s => s.id),
+                        product_ids: selectedProducts.map(p => parseInt(p.id)),
+                        forecast_days: forecastDays,
+                        include_insights: true,
+                        model_type: 'ensemble'
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Forecast generation failed');
+                }
+                
+                const data = await response.json();
+                
+                // Hide loading
+                document.getElementById('loadingSpinner').style.display = 'none';
+                document.getElementById('resultsContainer').style.display = 'block';
+                
+                // Switch to sales tab
+                document.getElementById('sales-tab').click();
+                
+                // Display results
+                displayForecastResults(data);
+                
+            } catch (error) {
+                console.error('Error generating forecast:', error);
+                document.getElementById('loadingSpinner').style.display = 'none';
+                alert('Error generating forecast. Please try again.');
+            }
+        }
+        
+        async function generateDemandForecast() {
+            if (selectedCities.length === 0 || selectedStores.length === 0 || selectedProducts.length === 0) {
+                alert('Please select at least one city, store, and product.');
+                return;
+            }
+            
+            const forecastDays = parseInt(document.getElementById('forecastDays').value);
+            
+            // Show loading
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('resultsContainer').style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/demand-forecast', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        city_ids: selectedCities.map(c => c.id),
+                        store_ids: selectedStores.map(s => s.id),
+                        product_ids: selectedProducts.map(p => parseInt(p.id)),
+                        forecast_days: forecastDays
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Demand forecast generation failed');
+                }
+                
+                const data = await response.json();
+                
+                // Hide loading
+                document.getElementById('loadingSpinner').style.display = 'none';
+                document.getElementById('resultsContainer').style.display = 'block';
+                
+                // Switch to demand tab
+                document.getElementById('demand-tab').click();
+                
+                // Display results
+                displayDemandForecastResults(data);
+                
+            } catch (error) {
+                console.error('Error generating demand forecast:', error);
+                document.getElementById('loadingSpinner').style.display = 'none';
+                alert('Error generating demand forecast. Please try again.');
+            }
+        }
+        
+        function displayForecastResults(data) {
+            // Display summary stats
+            displaySummaryStats(data.summary);
+            
+            // Display forecast chart
+            displayForecastChart(data.forecast_data);
+            
+            // Display insights
+            displayInsights(data.insights);
+            
+            // Display comparative analysis
+            displayComparativeAnalysis(data.comparative_analysis);
+        }
+        
+        function displayDemandForecastResults(data) {
+            // Display inventory overview
+            displayInventoryOverview(data.inventory_status);
+            
+            // Display stockout risk chart
+                            displayStockoutRiskChart(data.stockout_risk_analysis, data.inventory_status);
+            
+            // Display demand forecast chart
+            displayDemandForecastChart(data.inventory_status);
+            
+            // Display inventory status cards
+            displayInventoryStatusCards(data.inventory_status);
+            
+            // Display demand insights
+            displayDemandInsights(data.demand_insights);
+            
+            // Display recommendations
+            displayInventoryRecommendations(data.inventory_recommendations);
+        }
+        
+        function displayInventoryOverview(inventoryStatus) {
+            const statGrid = document.getElementById('inventoryStatGrid');
+            
+            if (!inventoryStatus || inventoryStatus.length === 0) {
+                statGrid.innerHTML = '<div class="col-12 text-center">No inventory data available</div>';
+                return;
+            }
+            
+            const totalProducts = inventoryStatus.length;
+            const criticalItems = inventoryStatus.filter(item => item.stockout_risk_score >= 0.8).length;
+            const highRiskItems = inventoryStatus.filter(item => item.stockout_risk_score >= 0.6).length;
+            const avgStockLevel = inventoryStatus.reduce((sum, item) => sum + item.current_stock_level, 0) / totalProducts;
+            const avgDaysUntilStockout = inventoryStatus.reduce((sum, item) => sum + item.days_until_stockout, 0) / totalProducts;
+            
+            statGrid.innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-value">${totalProducts}</div>
+                    <div class="stat-label">Products Analyzed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value text-danger">${criticalItems}</div>
+                    <div class="stat-label">Critical Risk Items</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value text-warning">${highRiskItems}</div>
+                    <div class="stat-label">High Risk Items</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${avgStockLevel.toFixed(0)}</div>
+                    <div class="stat-label">Avg Stock Level</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${avgDaysUntilStockout.toFixed(0)}</div>
+                    <div class="stat-label">Avg Days Until Stockout</div>
+                </div>
+            `;
+        }
+        
+        function displayStockoutRiskChart(stockoutRiskAnalysis, inventoryStatus) {
+            const ctx = document.getElementById('stockoutRiskChart').getContext('2d');
+            
+            if (stockoutRiskChart) {
+                stockoutRiskChart.destroy();
+            }
+            
+            if (!inventoryStatus || inventoryStatus.length === 0) {
+                return;
+            }
+            
+            // Prepare data for simple bar chart showing risk levels using ALL inventory items
+            const riskLevels = {
+                'Critical (>80%)': 0,
+                'High (60-80%)': 0,
+                'Medium (40-60%)': 0,
+                'Low (<40%)': 0
+            };
+            
+            inventoryStatus.forEach(item => {
+                const riskScore = item.stockout_risk_score || 0;
+                if (riskScore >= 0.8) {
+                    riskLevels['Critical (>80%)']++;
+                } else if (riskScore >= 0.6) {
+                    riskLevels['High (60-80%)']++;
+                } else if (riskScore >= 0.4) {
+                    riskLevels['Medium (40-60%)']++;
+                } else {
+                    riskLevels['Low (<40%)']++;
+                }
+            });
+            
+            stockoutRiskChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(riskLevels),
+                    datasets: [{
+                        label: 'Number of Items',
+                        data: Object.values(riskLevels),
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.8)',
+                            'rgba(255, 159, 64, 0.8)',
+                            'rgba(54, 162, 235, 0.8)',
+                            'rgba(75, 192, 192, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(75, 192, 192, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Items'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Stockout Risk Distribution'
+                        },
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+        
+        function displayDemandForecastChart(inventoryStatus) {
+            const ctx = document.getElementById('demandForecastChart').getContext('2d');
+            
+            if (demandForecastChart) {
+                demandForecastChart.destroy();
+            }
+            
+            if (!inventoryStatus || inventoryStatus.length === 0) {
+                return;
+            }
+            
+            // Create demand vs stock chart
+            const labels = inventoryStatus.map(item => item.product_name);
+            const stockData = inventoryStatus.map(item => item.current_stock_level);
+            const demandData = inventoryStatus.map(item => item.avg_daily_demand * 30); // 30-day demand
+            
+            demandForecastChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Current Stock',
+                        data: stockData,
+                        backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: '30-Day Demand Forecast',
+                        data: demandData,
+                        backgroundColor: 'rgba(255, 99, 132, 0.8)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Units'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Current Stock vs 30-Day Demand Forecast'
+                        }
+                    }
+                }
+            });
+        }
+        
+        function displayInventoryStatusCards(inventoryStatus) {
+            const container = document.getElementById('inventoryStatusContainer');
+            container.innerHTML = '';
+            
+            if (!inventoryStatus || inventoryStatus.length === 0) {
+                container.innerHTML = '<div class="text-center">No inventory data available</div>';
+                return;
+            }
+            
+            inventoryStatus.forEach(item => {
+                const urgencyClass = item.stockout_risk_score >= 0.8 ? 'critical' : 
+                                   item.stockout_risk_score >= 0.6 ? 'high' :
+                                   item.stockout_risk_score >= 0.4 ? 'medium' : 'low';
+                
+                const card = document.createElement('div');
+                card.className = `inventory-status-card ${urgencyClass}`;
+                card.innerHTML = `
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5>${item.product_name}</h5>
+                            <div class="location-info mb-2">
+                                <span class="badge bg-secondary me-2">${item.city_name}</span>
+                                <span class="badge bg-info">${item.store_name}</span>
+                            </div>
+                            <p class="mb-2">
+                                <strong>Current Stock:</strong> ${item.current_stock_level} units<br>
+                                <strong>Daily Demand:</strong> ${item.avg_daily_demand.toFixed(1)} units<br>
+                                <strong>Days Until Stockout:</strong> ${item.days_until_stockout} days<br>
+                                <strong>Stockout Frequency:</strong> ${(item.stockout_frequency * 100).toFixed(1)}%
+                            </p>
+                            ${item.last_stockout_date ? `<small class="text-muted">Last stockout: ${item.last_stockout_date}</small>` : ''}
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <div class="stockout-risk-gauge">
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar bg-${urgencyClass === 'critical' ? 'danger' : urgencyClass === 'high' ? 'warning' : urgencyClass === 'medium' ? 'info' : 'success'}" 
+                                         style="width: ${item.stockout_risk_score * 100}%">
+                                        ${(item.stockout_risk_score * 100).toFixed(0)}%
+                                    </div>
+                                </div>
+                                <small class="text-muted">Stockout Risk</small>
+                            </div>
+                            <div class="mt-3">
+                                <strong>Recommended Reorder:</strong><br>
+                                <span class="badge bg-primary">${item.recommended_reorder_quantity} units</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        function displayDemandInsights(demandInsights) {
+            const container = document.getElementById('demandInsightsContainer');
+            container.innerHTML = '';
+            
+            if (!demandInsights || demandInsights.length === 0) {
+                container.innerHTML = '<div class="text-center">No demand insights available</div>';
+                return;
+            }
+            
+            demandInsights.forEach(insight => {
+                const card = document.createElement('div');
+                card.className = `demand-insight-card ${insight.urgency_level}`;
+                
+                card.innerHTML = `
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5>
+                                <i class="fas fa-${insight.urgency_level === 'critical' ? 'exclamation-triangle' : 
+                                                insight.urgency_level === 'high' ? 'exclamation-circle' :
+                                                insight.urgency_level === 'medium' ? 'info-circle' : 'check-circle'} me-2"></i>
+                                ${insight.location} - ${insight.store_name}
+                            </h5>
+                            <h6>${insight.product_name}</h6>
+                            <p class="insight-text">${insight.recommended_action}</p>
+                            <small>Estimated Lost Sales: $${insight.estimated_lost_sales.toFixed(2)}</small>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="metrics">
+                                <div class="metric">
+                                    <div class="metric-value">${insight.current_stock}</div>
+                                    <div class="metric-label">Current Stock</div>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-value">${insight.forecasted_demand.toFixed(0)}</div>
+                                    <div class="metric-label">30-Day Demand</div>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-value">${insight.days_until_stockout}</div>
+                                    <div class="metric-label">Days Left</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        function displayInventoryRecommendations(recommendations) {
+            const container = document.getElementById('recommendationsContainer');
+            container.innerHTML = '';
+            
+            if (!recommendations || recommendations.length === 0) {
+                container.innerHTML = '<div class="text-center">No recommendations available</div>';
+                return;
+            }
+            
+            recommendations.forEach(rec => {
+                const card = document.createElement('div');
+                card.className = `recommendation-card ${rec.priority}`;
+                
+                card.innerHTML = `
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5>
+                                <i class="fas fa-${rec.priority === 'critical' ? 'exclamation-triangle' : 
+                                                rec.priority === 'high' ? 'exclamation-circle' : 'info-circle'} me-2"></i>
+                                ${rec.title}
+                            </h5>
+                            <p>${rec.description}</p>
+                            <ul class="mb-0">
+                                ${rec.action_items.map(item => `<li>${item}</li>`).join('')}
+                            </ul>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <div class="badge bg-${rec.priority === 'critical' ? 'danger' : 
+                                                   rec.priority === 'high' ? 'warning' : 'info'} mb-2">
+                                ${rec.priority.toUpperCase()} PRIORITY
+                            </div>
+                            <div>
+                                <strong>Estimated Impact:</strong><br>
+                                $${rec.estimated_impact.toFixed(2)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        function displaySummaryStats(summary) {
+            const statGrid = document.getElementById('statGrid');
+            statGrid.innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-value">${summary.total_combinations || 0}</div>
+                    <div class="stat-label">Total Combinations</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">$${(summary.total_predicted_sales || 0).toFixed(2)}</div>
+                    <div class="stat-label">Total Predicted Sales</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${(summary.avg_model_accuracy || 0).toFixed(1)}%</div>
+                    <div class="stat-label">Average Accuracy</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${(summary.avg_growth_rate || 0).toFixed(1)}%</div>
+                    <div class="stat-label">Average Growth Rate</div>
+                </div>
+            `;
+        }
+        
+        function displayForecastChart(forecastData) {
+            const ctx = document.getElementById('forecastChart').getContext('2d');
+            
+            if (forecastChart) {
+                forecastChart.destroy();
+            }
+            
+            // Get individual combinations for detailed breakdown
+            const combinations = forecastData.combinations || [];
+            
+            if (!combinations.length) {
+                console.error('No combination data available for chart');
+                return;
+            }
+            
+            // Create datasets for each city-store combination
+            const datasets = [];
+            const colors = [
+                'rgb(102, 126, 234)',
+                'rgb(255, 99, 132)', 
+                'rgb(54, 162, 235)',
+                'rgb(255, 205, 86)',
+                'rgb(75, 192, 192)',
+                'rgb(153, 102, 255)',
+                'rgb(255, 159, 64)',
+                'rgb(199, 199, 199)'
+            ];
+            
+            // Group combinations by city-store for better visualization
+            const cityStoreGroups = {};
+            combinations.forEach(combo => {
+                const key = `${combo.city_name} - ${combo.store_name}`;
+                if (!cityStoreGroups[key]) {
+                    cityStoreGroups[key] = {
+                        dates: combo.forecast.dates,
+                        predictions: combo.forecast.predictions,
+                        city_name: combo.city_name,
+                        store_name: combo.store_name,
+                        total_predicted: combo.forecast.total_predicted
+                    };
+                } else {
+                    // Sum predictions if multiple products for same city-store
+                    for (let i = 0; i < combo.forecast.predictions.length; i++) {
+                        cityStoreGroups[key].predictions[i] += combo.forecast.predictions[i];
+                    }
+                    cityStoreGroups[key].total_predicted += combo.forecast.total_predicted;
+                }
+            });
+            
+            // Create datasets for each city-store combination
+            let colorIndex = 0;
+            Object.entries(cityStoreGroups).forEach(([key, data]) => {
+                datasets.push({
+                    label: key,
+                    data: data.predictions,
+                    borderColor: colors[colorIndex % colors.length],
+                    backgroundColor: colors[colorIndex % colors.length].replace('rgb', 'rgba').replace(')', ', 0.1)'),
+                    tension: 0.4,
+                    fill: false
+                });
+                colorIndex++;
+            });
+            
+            // Use dates from first combination
+            const dates = combinations[0].forecast.dates;
+            
+            forecastChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Sales Amount ($)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Multi-Dimensional Sales Forecast by City-Store'
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+        
+        function displayInsights(insights) {
+            const insightsContainer = document.getElementById('insightsContainer');
+            insightsContainer.innerHTML = '';
+            
+            insights.forEach(insight => {
+                const insightCard = document.createElement('div');
+                insightCard.className = 'insight-card';
+                
+                insightCard.innerHTML = `
+                    <h5>${insight.location} - ${insight.store_name}</h5>
+                    <div class="insight-text">
+                        <strong>${insight.product_name}:</strong> ${insight.recommendation}
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-light">
+                            <strong>Key Factors:</strong> ${insight.key_factors.join(', ')}
+                        </small>
+                    </div>
+                    <div class="metrics">
+                        <div class="metric">
+                            <div class="metric-value">$${insight.predicted_sales.toFixed(2)}</div>
+                            <div class="metric-label">Predicted Sales</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">${insight.growth_rate.toFixed(1)}%</div>
+                            <div class="metric-label">Growth Rate</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">${insight.confidence_score.toFixed(1)}%</div>
+                            <div class="metric-label">Confidence</div>
+                        </div>
+                    </div>
+
+                `;
+                
+                insightsContainer.appendChild(insightCard);
+            });
+        }
+        
+        function displayComparativeAnalysis(comparativeAnalysis) {
+            // City comparison
+            const cityComparison = document.getElementById('cityComparison');
+            cityComparison.innerHTML = '';
+            
+            Object.entries(comparativeAnalysis.city_comparison || {}).forEach(([city, data]) => {
+                const item = document.createElement('div');
+                item.className = 'mb-2';
+                item.innerHTML = `
+                    <strong>${city}</strong><br>
+                    <small>$${data.total_predicted.toFixed(2)} total</small>
+                `;
+                cityComparison.appendChild(item);
+            });
+            
+            // Store comparison
+            const storeComparison = document.getElementById('storeComparison');
+            storeComparison.innerHTML = '';
+            
+            Object.entries(comparativeAnalysis.store_comparison || {}).forEach(([store, data]) => {
+                const item = document.createElement('div');
+                item.className = 'mb-2';
+                item.innerHTML = `
+                    <strong>${store}</strong><br>
+                    <small>$${data.total_predicted.toFixed(2)} total</small>
+                `;
+                storeComparison.appendChild(item);
+            });
+            
+            // Product comparison
+            const productComparison = document.getElementById('productComparison');
+            productComparison.innerHTML = '';
+            
+            Object.entries(comparativeAnalysis.product_comparison || {}).forEach(([product, data]) => {
+                const item = document.createElement('div');
+                item.className = 'mb-2';
+                item.innerHTML = `
+                    <strong>${product}</strong><br>
+                    <small>$${data.total_predicted.toFixed(2)} total</small>
+                `;
+                productComparison.appendChild(item);
+            });
+            
+            // Display key insights
+            const keyInsights = document.getElementById('keyInsights');
+            keyInsights.innerHTML = '';
+            
+            (comparativeAnalysis.insights || []).forEach(insight => {
+                const p = document.createElement('p');
+                p.textContent = insight;
+                keyInsights.appendChild(p);
+            });
+        }
+
+        // Weather and Holiday Forecasting Functions
+        async function generateWeatherForecast() {
+            if (selectedCities.length === 0 || selectedStores.length === 0 || selectedProducts.length === 0) {
+                alert('Please select at least one city, store, and product.');
+                return;
+            }
+            
+            try {
+                showLoading();
+                
+                const discountPercentage = parseFloat(document.getElementById('discountPercentage').value) / 100;
+                const promotionDuration = parseInt(document.getElementById('promotionDuration').value);
+                
+                const response = await fetch('/api/weather-holiday-forecast', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        city_ids: selectedCities.map(c => c.id),
+                        store_ids: selectedStores.map(s => s.id),
+                        product_ids: selectedProducts.map(p => parseInt(p.id)),
+                        discount_percentage: discountPercentage,
+                        promotion_duration_days: promotionDuration
+                    })
+                });
+                
+                const data = await response.json();
+                weatherForecastData = data;
+                
+                if (data.success) {
+                    displayWeatherSummary(data);
+                    displayWeatherRecommendations(data.current_weather_recommendations);
+                    displayHolidayAnalysis(data.holiday_impact_summary);
+                    displayPromotionalAnalysis(data.promotional_analysis);
+                    displayBundleRecommendations(data.bundle_recommendations);
+                    displaySeasonalInsights(data.seasonal_insights);
+                } else {
+                    alert('Error generating weather forecast: ' + data.message);
+                }
+                
+            } catch (error) {
+                console.error('Error generating weather forecast:', error);
+                alert('Error generating weather forecast. Please try again.');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        function displayWeatherSummary(data) {
+            const container = document.getElementById('weatherSummaryCards');
+            container.innerHTML = '';
+            
+            const weatherSummary = data.weather_impact_summary;
+            const holidaySummary = data.holiday_impact_summary;
+            
+            const summaryCard = document.createElement('div');
+            summaryCard.className = 'weather-summary-card';
+            summaryCard.innerHTML = `
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="weather-metric">
+                            <div class="weather-metric-value">${(weatherSummary.overall_weather_sensitivity * 100).toFixed(1)}%</div>
+                            <div class="weather-metric-label">Weather Sensitivity</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="weather-metric">
+                            <div class="weather-metric-value">${Object.keys(weatherSummary.city_weather_conditions).length}</div>
+                            <div class="weather-metric-label">Cities Analyzed</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="weather-metric">
+                            <div class="weather-metric-value">${((holidaySummary.holiday_boost_average - 1) * 100).toFixed(1)}%</div>
+                            <div class="weather-metric-label">Holiday Boost</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="weather-metric">
+                            <div class="weather-metric-value">${holidaySummary.current_holiday_status}</div>
+                            <div class="weather-metric-label">Holiday Status</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(summaryCard);
+        }
+        
+        function displayWeatherRecommendations(recommendations) {
+            const container = document.getElementById('weatherRecommendationsContainer');
+            container.innerHTML = '';
+            
+            if (!recommendations || recommendations.length === 0) {
+                container.innerHTML = '<div class="text-center">No weather recommendations available</div>';
+                return;
+            }
+            
+            recommendations.forEach(rec => {
+                const card = document.createElement('div');
+                card.className = `weather-recommendation-card ${rec.recommendation_type.replace('_', '-')}`;
+                card.onclick = () => showProductWeatherDetail(rec);
+                
+                const weatherIcon = getWeatherIcon(rec.current_weather.weather_category);
+                const impactIcon = getImpactIcon(rec.recommendation_type);
+                
+                card.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1">
+                                ${weatherIcon} ${rec.product_name}
+                                <span class="badge bg-secondary ms-2">${rec.city_name}</span>
+                                <span class="badge bg-info ms-1">${rec.store_name}</span>
+                            </h6>
+                            <p class="mb-1">${rec.reasoning}</p>
+                            <small class="text-muted">
+                                Weather: ${rec.current_weather.temperature.toFixed(1)}°F, 
+                                ${rec.current_weather.weather_category}
+                            </small>
+                        </div>
+                        <div class="text-end">
+                            <div class="h5 mb-1">${impactIcon} ${rec.impact_percentage.toFixed(1)}%</div>
+                            <div class="small">
+                                <span class="badge bg-primary">${rec.suggested_stock_adjustment > 0 ? '+' : ''}${rec.suggested_stock_adjustment} units</span>
+                                <div class="mt-1">
+                                    Confidence: ${(rec.confidence_score * 100).toFixed(0)}%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        function displayHolidayAnalysis(holidayData) {
+            const container = document.getElementById('holidayAnalysisContainer');
+            container.innerHTML = '';
+            
+            const analysisCard = document.createElement('div');
+            analysisCard.className = 'holiday-analysis-card';
+            analysisCard.innerHTML = `
+                <div class="mb-3">
+                    <h6><i class="fas fa-calendar-check me-2"></i>Holiday Status: ${holidayData.current_holiday_status}</h6>
+                    <div class="progress mb-2">
+                        <div class="progress-bar ${holidayData.holiday_boost_average > 1.1 ? 'bg-success' : holidayData.holiday_boost_average > 1.05 ? 'bg-warning' : 'bg-secondary'}" 
+                             style="width: ${Math.min(100, (holidayData.holiday_boost_average - 1) * 200)}%">
+                            ${((holidayData.holiday_boost_average - 1) * 100).toFixed(1)}% Boost
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <h6><i class="fas fa-lightbulb me-2"></i>Recommendations:</h6>
+                    ${holidayData.holiday_recommendations.map(rec => `
+                        <div class="alert alert-info py-2 mb-2">
+                            <i class="fas fa-info-circle me-2"></i>${rec}
+                        </div>
+                    `).join('')}
+                </div>
+                
+                ${holidayData.holiday_sensitive_products.length > 0 ? `
+                    <div>
+                        <h6><i class="fas fa-star me-2"></i>Holiday-Sensitive Products:</h6>
+                        ${holidayData.holiday_sensitive_products.map(product => `
+                            <div class="d-flex justify-content-between align-items-center py-1">
+                                <span>${product.product_name}</span>
+                                <span class="badge bg-success">${((product.holiday_boost - 1) * 100).toFixed(1)}% boost</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+            `;
+            container.appendChild(analysisCard);
+        }
+        
+        function displayPromotionalAnalysis(promotionalData) {
+            const container = document.getElementById('promotionalAnalysisContainer');
+            container.innerHTML = '';
+            
+            if (!promotionalData || promotionalData.length === 0) {
+                container.innerHTML = '<div class="text-center">No promotional analysis available</div>';
+                return;
+            }
+            
+            promotionalData.forEach(promo => {
+                const card = document.createElement('div');
+                const recommendationLevel = promo.recommendation.toLowerCase().includes('highly') ? 'highly-recommended' :
+                                          promo.recommendation.toLowerCase().includes('recommended') ? 'recommended' :
+                                          promo.recommendation.toLowerCase().includes('moderate') ? 'moderate' : 'not-recommended';
+                
+                card.className = `promotional-analysis-card ${recommendationLevel}`;
+                card.innerHTML = `
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h6>${promo.product_name} - ${promo.city_name} ${promo.store_name}</h6>
+                            <div class="mb-2">
+                                <strong>Promotion:</strong> ${(promo.discount_percentage * 100).toFixed(0)}% discount for ${promo.promotion_duration_days} days
+                            </div>
+                            <div class="mb-2">
+                                <strong>Expected Sales Increase:</strong> ${(promo.expected_sales_increase * 100).toFixed(1)}%
+                            </div>
+                            <div class="mb-2">
+                                <strong>Revenue Impact:</strong> 
+                                <span class="${promo.expected_revenue_impact >= 0 ? 'text-success' : 'text-danger'}">
+                                    $${promo.expected_revenue_impact.toFixed(2)}
+                                </span>
+                            </div>
+                            <div class="small text-muted">
+                                Weather Boost: ${promo.weather_boost_factor.toFixed(2)}x | 
+                                Holiday Boost: ${promo.holiday_boost_factor.toFixed(2)}x
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <div class="h6 mb-1">${getRecommendationIcon(recommendationLevel)}</div>
+                                <div class="small">${promo.optimal_timing}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <div class="alert alert-${getRecommendationAlertClass(recommendationLevel)} py-2 mb-0">
+                            ${promo.recommendation}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        function displayBundleRecommendations(bundleData) {
+            const container = document.getElementById('bundleRecommendationsContainer');
+            container.innerHTML = '';
+            
+            if (!bundleData || bundleData.length === 0) {
+                container.innerHTML = '<div class="text-center">No bundle recommendations available for current weather conditions</div>';
+                return;
+            }
+            
+            bundleData.forEach(bundle => {
+                const card = document.createElement('div');
+                card.className = 'bundle-recommendation-card';
+                card.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6><i class="fas fa-boxes me-2"></i>${bundle.bundle_name}</h6>
+                        <span class="badge bg-info">${bundle.weather_condition}</span>
+                    </div>
+                    <p class="mb-2">${bundle.bundle_description}</p>
+                    <div class="mb-2">
+                        <strong>Products:</strong>
+                        ${bundle.products.map(product => `
+                            <span class="badge bg-secondary me-1">${product.product_name}</span>
+                        `).join('')}
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <small><strong>Recommended Discount:</strong> ${(bundle.recommended_discount * 100).toFixed(0)}%</small>
+                        </div>
+                        <div class="col-md-6">
+                            <small><strong>Expected Sales Boost:</strong> ${(bundle.expected_sales_boost * 100).toFixed(0)}%</small>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted"><i class="fas fa-lightbulb me-1"></i>${bundle.reasoning}</small>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        function displaySeasonalInsights(seasonalData) {
+            const container = document.getElementById('seasonalInsightsContainer');
+            container.innerHTML = '';
+            
+            if (!seasonalData || seasonalData.length === 0) {
+                container.innerHTML = '<div class="text-center">No seasonal insights available</div>';
+                return;
+            }
+            
+            seasonalData.forEach(insight => {
+                const card = document.createElement('div');
+                card.className = 'seasonal-insight-card';
+                card.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6><i class="fas fa-calendar-alt me-2"></i>${insight.season}</h6>
+                        <span class="badge bg-primary">${insight.city_name}</span>
+                    </div>
+                    <p class="mb-2">${insight.insight}</p>
+                    <div class="mb-2">
+                        <strong>Expected Impact:</strong> ${insight.expected_impact}
+                    </div>
+                    <div>
+                        <strong>Recommended Actions:</strong>
+                        <ul class="mb-0 mt-1">
+                            ${insight.recommended_actions.map(action => `<li>${action}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        function showWeatherNotifications() {
+            if (!weatherForecastData) {
+                alert('Please generate weather forecast first.');
+                return;
+            }
+            
+            const modal = new bootstrap.Modal(document.getElementById('weatherNotificationModal'));
+            const content = document.getElementById('weatherNotificationContent');
+            
+            let notifications = [];
+            
+            // Generate notifications based on weather recommendations
+            weatherForecastData.current_weather_recommendations.forEach(rec => {
+                if (rec.recommendation_type !== 'normal') {
+                    const alertClass = rec.recommendation_type === 'increase_stock' ? 'alert-success' : 
+                                     rec.recommendation_type === 'decrease_stock' ? 'alert-warning' : 'alert-info';
+                    
+                    notifications.push({
+                        type: alertClass,
+                        title: `${rec.product_name} - ${rec.city_name}`,
+                        message: rec.reasoning,
+                        action: `Adjust stock by ${rec.suggested_stock_adjustment > 0 ? '+' : ''}${rec.suggested_stock_adjustment} units`,
+                        confidence: rec.confidence_score
+                    });
+                }
+            });
+            
+            // Generate notifications for promotional opportunities
+            weatherForecastData.promotional_analysis.forEach(promo => {
+                if (promo.recommendation.toLowerCase().includes('highly') || promo.recommendation.toLowerCase().includes('recommended')) {
+                    notifications.push({
+                        type: 'alert-success',
+                        title: `Promotion Opportunity: ${promo.product_name}`,
+                        message: `${(promo.discount_percentage * 100).toFixed(0)}% discount expected to increase sales by ${(promo.expected_sales_increase * 100).toFixed(1)}%`,
+                        action: `Revenue impact: $${promo.expected_revenue_impact.toFixed(2)}`,
+                        confidence: 0.8
+                    });
+                }
+            });
+            
+            content.innerHTML = notifications.length > 0 ? notifications.map(notification => `
+                <div class="weather-alert ${notification.type}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1">${notification.title}</h6>
+                            <p class="mb-1">${notification.message}</p>
+                            <small><strong>Action:</strong> ${notification.action}</small>
+                        </div>
+                        <div class="text-end">
+                            <small>Confidence: ${(notification.confidence * 100).toFixed(0)}%</small>
+                        </div>
+                    </div>
+                </div>
+            `).join('') : '<div class="text-center">No weather alerts at this time</div>';
+            
+            modal.show();
+        }
+        
+        function showProductWeatherDetail(recommendation) {
+            const modal = new bootstrap.Modal(document.getElementById('productWeatherModal'));
+            const content = document.getElementById('productWeatherContent');
+            
+            content.innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-thermometer-half me-2"></i>Current Weather Conditions</h6>
+                        <div class="weather-detail-card">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="weather-metric-small">
+                                        <div class="value">${recommendation.current_weather.temperature.toFixed(1)}°F</div>
+                                        <div class="label">Temperature</div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="weather-metric-small">
+                                        <div class="value">${recommendation.current_weather.precipitation.toFixed(1)}</div>
+                                        <div class="label">Precipitation</div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="weather-metric-small">
+                                        <div class="value">${recommendation.current_weather.humidity.toFixed(1)}%</div>
+                                        <div class="label">Humidity</div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="weather-metric-small">
+                                        <div class="value">${recommendation.current_weather.wind_level.toFixed(1)}</div>
+                                        <div class="label">Wind Level</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-chart-line me-2"></i>Impact Analysis</h6>
+                        <div class="impact-detail-card">
+                            <div class="mb-3">
+                                <label>Weather Category:</label>
+                                <span class="badge bg-primary ms-2">${recommendation.current_weather.weather_category}</span>
+                            </div>
+                            <div class="mb-3">
+                                <label>Recommendation:</label>
+                                <span class="badge bg-${recommendation.recommendation_type === 'increase_stock' ? 'success' : recommendation.recommendation_type === 'decrease_stock' ? 'warning' : 'secondary'} ms-2">
+                                    ${recommendation.recommendation_type.replace('_', ' ')}
+                                </span>
+                            </div>
+                            <div class="mb-3">
+                                <label>Expected Impact:</label>
+                                <span class="ms-2">${recommendation.impact_percentage.toFixed(1)}%</span>
+                            </div>
+                            <div class="mb-3">
+                                <label>Stock Adjustment:</label>
+                                <span class="ms-2">${recommendation.suggested_stock_adjustment > 0 ? '+' : ''}${recommendation.suggested_stock_adjustment} units</span>
+                            </div>
+                            <div class="mb-3">
+                                <label>Confidence Score:</label>
+                                <span class="ms-2">${(recommendation.confidence_score * 100).toFixed(0)}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <h6><i class="fas fa-lightbulb me-2"></i>Detailed Reasoning</h6>
+                        <div class="alert alert-info">
+                            ${recommendation.reasoning}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            modal.show();
+        }
+        
+        // Helper functions
+        function getWeatherIcon(weatherCategory) {
+            const icons = {
+                'cold': '<i class="fas fa-snowflake text-primary"></i>',
+                'warm': '<i class="fas fa-sun text-warning"></i>',
+                'rainy': '<i class="fas fa-cloud-rain text-info"></i>',
+                'dry': '<i class="fas fa-sun text-warning"></i>',
+                'mild': '<i class="fas fa-cloud-sun text-secondary"></i>'
+            };
+            return icons[weatherCategory] || '<i class="fas fa-cloud text-secondary"></i>';
+        }
+        
+        function getImpactIcon(recommendationType) {
+            const icons = {
+                'increase_stock': '<i class="fas fa-arrow-up text-success"></i>',
+                'decrease_stock': '<i class="fas fa-arrow-down text-danger"></i>',
+                'normal': '<i class="fas fa-minus text-secondary"></i>',
+                'bundle_opportunity': '<i class="fas fa-gift text-warning"></i>'
+            };
+            return icons[recommendationType] || '<i class="fas fa-minus text-secondary"></i>';
+        }
+        
+        function getRecommendationIcon(level) {
+            const icons = {
+                'highly-recommended': '<i class="fas fa-star text-success"></i>',
+                'recommended': '<i class="fas fa-thumbs-up text-info"></i>',
+                'moderate': '<i class="fas fa-meh text-warning"></i>',
+                'not-recommended': '<i class="fas fa-thumbs-down text-danger"></i>'
+            };
+            return icons[level] || '<i class="fas fa-minus text-secondary"></i>';
+        }
+        
+        function getRecommendationAlertClass(level) {
+            const classes = {
+                'highly-recommended': 'success',
+                'recommended': 'info',
+                'moderate': 'warning',
+                'not-recommended': 'danger'
+            };
+            return classes[level] || 'secondary';
+        }
+    </script>
+</body>
+</html> 
