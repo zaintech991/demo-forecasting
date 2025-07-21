@@ -2,6 +2,7 @@ import pandas as pd
 import psycopg2
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
 
 # Read the CSV
