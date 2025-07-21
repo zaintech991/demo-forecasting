@@ -996,6 +996,26 @@
         </div>
     </div>
 
+    <!-- Promotional Alert Modal -->
+    <div class="modal fade" id="promotionalAlertModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-percent me-2"></i>Promotional Campaign Recommendations
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="promotionalAlertContent"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
@@ -1926,6 +1946,10 @@
                     displayPromotionalAnalysis(data.promotional_analysis);
                     displayBundleRecommendations(data.bundle_recommendations);
                     displaySeasonalInsights(data.seasonal_insights);
+                    
+                    // Show promotional alert pop-up
+                    showPromotionalAlert(data.promotional_analysis);
+
                 } else {
                     alert('Error generating weather forecast: ' + data.message);
                 }
@@ -1938,6 +1962,65 @@
             }
         }
         
+        function showPromotionalAlert(promotionalAnalysisData) {
+            const modal = new bootstrap.Modal(document.getElementById('promotionalAlertModal'));
+            const content = document.getElementById('promotionalAlertContent');
+            
+            if (!promotionalAnalysisData || promotionalAnalysisData.length === 0) {
+                content.innerHTML = '<div class="alert alert-info text-center">No promotional recommendations available at this time.</div>';
+                modal.show();
+                return;
+            }
+
+            let htmlContent = '';
+            promotionalAnalysisData.forEach(promo => {
+                const recommendationLevel = promo.recommendation.toLowerCase().includes('highly') ? 'highly-recommended' :
+                                          promo.recommendation.toLowerCase().includes('recommended') ? 'recommended' :
+                                          promo.recommendation.toLowerCase().includes('moderate') ? 'moderate' : 'not-recommended';
+                const alertClass = getRecommendationAlertClass(recommendationLevel);
+                const recommendationIcon = getRecommendationIcon(recommendationLevel);
+
+                htmlContent += `
+                    <div class="promotional-analysis-card ${recommendationLevel} mb-3">
+                        <div class="row">
+                            <div class="col-md-9">
+                                <h6>${promo.product_name} - ${promo.city_name} ${promo.store_name}</h6>
+                                <div class="mb-2">
+                                    <strong>Promotion:</strong> ${(promo.discount_percentage * 100).toFixed(0)}% discount for ${promo.promotion_duration_days} days
+                                </div>
+                                <div class="mb-2">
+                                    <strong>Expected Sales Increase:</strong> <span class="text-success">${(promo.expected_sales_increase * 100).toFixed(1)}%</span>
+                                </div>
+                                <div class="mb-2">
+                                    <strong>Revenue Impact:</strong> 
+                                    <span class="${promo.expected_revenue_impact >= 0 ? 'text-success' : 'text-danger'}">
+                                        $${promo.expected_revenue_impact.toFixed(2)}
+                                    </span>
+                                </div>
+                                <div class="small text-muted">
+                                    Weather Boost: ${promo.weather_boost_factor.toFixed(2)}x | 
+                                    Holiday Boost: ${promo.holiday_boost_factor.toFixed(2)}x
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-center d-flex flex-column justify-content-center align-items-center">
+                                <div class="h3 mb-2">${recommendationIcon}</div>
+                                <div class="fw-bold">${promo.recommendation}</div>
+                                <div class="small text-muted">${promo.optimal_timing || 'Any time'}</div>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <div class="alert alert-${alertClass} py-2 mb-0">
+                                ${promo.reasoning || 'No specific reasoning provided.'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            content.innerHTML = htmlContent;
+            modal.show();
+        }
+
         function displayWeatherSummary(data) {
             const container = document.getElementById('weatherSummaryCards');
             container.innerHTML = '';
@@ -2465,4 +2548,4 @@
         }
     </script>
 </body>
-</html> 
+</html>
