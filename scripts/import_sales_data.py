@@ -3,6 +3,7 @@ import psycopg2
 from datetime import datetime
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
 
 # Read the CSV

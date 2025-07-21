@@ -35,6 +35,7 @@ from database.connection import db_manager
 from api.analytics_api import router as analytics_router
 from api.enhanced_multi_modal_api import router as enhanced_router
 from api.multi_dimensional_forecast import router as multi_dimensional_router
+from api.clustering_segmentation import router as clustering_router
 
 # Create FastAPI app
 app = FastAPI(
@@ -56,6 +57,7 @@ app.add_middleware(
 app.include_router(analytics_router)
 app.include_router(enhanced_router)
 app.include_router(multi_dimensional_router)
+app.include_router(clustering_router)
 
 
 def format_floats_recursive(data: Any, decimals: int = 2) -> Any:
@@ -211,9 +213,7 @@ async def forecast(request: ForecastRequest, conn=Depends(get_db)):
 
 
 @app.post("/api/promotions/analyze")
-async def analyze_promotions(
-    request: PromotionAnalysisRequest, conn=Depends(get_db)
-):
+async def analyze_promotions(request: PromotionAnalysisRequest, conn=Depends(get_db)):
     """Analyze promotion effectiveness"""
     try:
         model = get_promo_model()
@@ -272,9 +272,7 @@ async def analyze_stockout_impact(
 
 
 @app.post("/api/holidays/analyze")
-async def analyze_holiday_effects(
-    request: HolidayImpactRequest, conn=Depends(get_db)
-):
+async def analyze_holiday_effects(request: HolidayImpactRequest, conn=Depends(get_db)):
     """Analyze holiday impact on sales"""
     try:
         df = await fetch_historical_data(
@@ -303,9 +301,7 @@ async def analyze_holiday_effects(
 
 
 @app.post("/weather/analyze")
-async def analyze_weather_impact(
-    request: WeatherAnalysisRequest, conn=Depends(get_db)
-):
+async def analyze_weather_impact(request: WeatherAnalysisRequest, conn=Depends(get_db)):
     """
     Weather-sensitive demand analysis endpoint for frontend integration.
     """
@@ -379,9 +375,7 @@ async def analyze_category_performance(
 
 
 @app.post("/stores/insights")
-async def analyze_store_clustering(
-    request: StoreInsightsRequest, conn=Depends(get_db)
-):
+async def analyze_store_clustering(request: StoreInsightsRequest, conn=Depends(get_db)):
     """
     Store clustering and behavior analysis endpoint for frontend integration.
     """

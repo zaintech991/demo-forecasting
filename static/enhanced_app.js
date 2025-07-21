@@ -1899,11 +1899,183 @@ function formatCategoryResults(data) {
 function formatStoreResults(data) {
     let html = '<div class="row">';
     
-    // Store Clustering
-    if (data.cluster_characteristics) {
+    // Check if the response is a ClusteringResponse object
+    if (data.cluster_profiles && Array.isArray(data.cluster_profiles)) {
+        html += `
+            <div class="col-12 mb-4">
+                <h6>📊 Store Clustering Analysis Results</h6>
+                <p class="text-muted">Algorithm: ${data.algorithm_used}, Clusters: ${data.n_clusters}</p>
+            </div>
+        `;
+
+        // Display Cluster Profiles
+        html += `
+            <div class="col-12 mb-4">
+                <h5>Group Characteristics:</h5>
+                <div class="accordion" id="clusterProfilesAccordion">
+                    ${data.cluster_profiles.map((profile, index) => `
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading${profile.cluster_id}">
+                                <button class="accordion-button ${index === 0 ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${profile.cluster_id}" aria-expanded="${index === 0 ? 'true' : 'false'}" aria-controls="collapse${profile.cluster_id}">
+                                    ${profile.cluster_name} (${profile.entity_count} entities)
+                                </button>
+                            </h2>
+                            <div id="collapse${profile.cluster_id}" class="accordion-collapse collapse ${index === 0 ? 'show' : ''}" aria-labelledby="heading${profile.cluster_id}" data-bs-parent="#clusterProfilesAccordion">
+                                <div class="accordion-body">
+                                    <p><strong>Key Metrics:</strong></p>
+                                    <ul>
+                                        ${Object.entries(profile.key_metrics).map(([key, value]) => `
+                                            <li>${formatFeatureName(key)}: ${typeof value === 'number' ? value.toFixed(2) : value}</li>
+                                        `).join('')}
+                                    </ul>
+                                    <p><strong>Detailed Characteristics:</strong></p>
+                                    <ul>
+                                        ${Object.entries(profile.characteristics).map(([key, value]) => `
+                                            <li>${formatFeatureName(key)}: Mean=${(value.mean || 0).toFixed(2)}, Std=${(value.std || 0).toFixed(2)}</li>
+                                        `).join('')}
+                                    </ul>
+                                    <p><strong>Representative Entities:</strong></p>
+                                    <ul>
+                                        ${profile.representative_entities.map(entity => `
+                                            <li>${entity.name} (ID: ${entity.id}) - Key Metrics: ${Object.entries(entity.key_metrics).map(([k, v]) => `${formatFeatureName(k)}: ${typeof v === 'number' ? v.toFixed(2) : v}`).join(', ')}
+                                            </li>
+                                        `).join('')}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+
+        // Display Cluster Quality Metrics
+        if (data.cluster_quality_metrics) {
+            html += `
+                <div class="col-12 mt-4">
+                    <h5>Quality Metrics:</h5>
+                    <div class="row">
+                        ${Object.entries(data.cluster_quality_metrics).map(([key, value]) => `
+                            <div class="col-md-4 mb-3">
+                                <div class="metric-card">
+                                    <div class="metric-value">${typeof value === 'number' ? value.toFixed(2) : value}</div>
+                                    <div class="metric-label">${formatFeatureName(key)}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Display Insights
+        if (data.insights && Array.isArray(data.insights)) {
+            html += `
+                <div class="col-12 mt-4">
+                    <h5>💡 Insights:</h5>
+                    <ul class="list-group">
+                        ${data.insights.map(insight => `<li class="list-group-item">${insight}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+
+        // Display Recommendations
+        if (data.recommendations && Array.isArray(data.recommendations)) {
+            html += `
+                <div class="col-12 mt-4">
+                    <h5>🎯 Recommendations:</h5>
+                    <div class="recommendations-list">
+                        ${data.recommendations.map((rec, index) => `
+                            <div class="mb-3 p-3 border rounded">
+                                <div class="d-flex align-items-start">
+                                    <div class="badge bg-primary rounded-pill me-3">${index + 1}</div>
+                                    <div>
+                                        <h6 class="mb-1">${rec.cluster_name || 'Recommendation'} (${rec.recommendation_type})</h6>
+                                        <p class="mb-1">${rec.action}</p>
+                                        <small class="text-muted">Priority: ${rec.priority}, Reason: ${rec.reason}</small>
+                                        ${rec.expected_impact ? `<br/><small class="text-success">Expected Impact: ${rec.expected_impact}</small>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Display entity assignments (optional: can be very large)
+        // For brevity, we might only show a sample or make it collapsible.
+        // html += `<div class="col-12 mt-4"><h5>Entity Assignments:</h5><pre>${JSON.stringify(data.entity_assignments.slice(0, 5), null, 2)}</pre></div>`;
+
+        // Display entity assignments
+        if (data.entity_assignments && Array.isArray(data.entity_assignments) && data.entity_assignments.length > 0) {
+            let entityNameFunction;
+            if (data.entity_type === 'products') {
+                entityNameFunction = getProductName;
+            } else if (data.entity_type === 'stores') {
+                entityNameFunction = getStoreName;
+            } else if (data.entity_type === 'cities') {
+                entityNameFunction = getCityName;
+            } else {
+                entityNameFunction = (id, name) => name || `Entity ${id}`;
+            }
+
+            html += `
+                <div class="col-12 mt-4">
+                    <h5>📝 Entity Assignments:</h5>
+                    <div class="accordion" id="entityAssignmentsAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingAssignments">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAssignments" aria-expanded="false" aria-controls="collapseAssignments">
+                                    View All ${data.entity_assignments.length} Assigned Entities
+                                </button>
+                            </h2>
+                            <div id="collapseAssignments" class="accordion-collapse collapse" aria-labelledby="headingAssignments" data-bs-parent="#entityAssignmentsAccordion">
+                                <div class="accordion-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>ID</th>
+                                                    <th>Name</th>
+                                                    <th>Cluster ID</th>
+                                                    <th>Cluster Name</th>
+                                                    <th>Similarity Score</th>
+                                                    <th>Key Attributes</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${data.entity_assignments.map(entity => `
+                                                    <tr>
+                                                        <td>${entity.entity_id}</td>
+                                                        <td>${entity.entity_name}</td>
+                                                        <td>${entity.cluster_id}</td>
+                                                        <td>${entity.cluster_name}</td>
+                                                        <td>${(entity.similarity_score * 100).toFixed(1)}%</td>
+                                                        <td>
+                                                            ${Object.entries(entity.key_attributes).map(([key, value]) => `
+                                                                <span class="badge bg-secondary me-1">${formatFeatureName(key)}: ${typeof value === 'number' ? value.toFixed(2) : value}</span>
+                                                            `).join('')}
+                                                        </td>
+                                                    </tr>
+                                                `).join('')}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+    } else if (data.cluster_characteristics) {
+        // Original handling for partial clustering data
         html += `
             <div class="col-12">
-                <h6>🏪 Store Cluster Analysis</h6>
+                <h6>🏪 Store Cluster Analysis (Partial)</h6>
                 <div class="row">
                     <div class="col-md-4">
                         <div class="card">

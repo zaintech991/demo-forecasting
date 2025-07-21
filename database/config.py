@@ -21,7 +21,12 @@ DB_CONFIG = {
 
 # Check required variables
 required_vars = ["DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD"]
-var_mapping = {"DB_HOST": "host", "DB_NAME": "database", "DB_USER": "user", "DB_PASSWORD": "password"}
+var_mapping = {
+    "DB_HOST": "host",
+    "DB_NAME": "database",
+    "DB_USER": "user",
+    "DB_PASSWORD": "password",
+}
 for var in required_vars:
     config_key = var_mapping[var]
     if not DB_CONFIG[config_key]:

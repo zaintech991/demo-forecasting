@@ -596,6 +596,11 @@
                             <i class="fas fa-cloud-sun me-2"></i>Weather & Holiday Forecasting
                         </a>
                     </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="clustering-tab" data-bs-toggle="tab" data-bs-target="#clustering" type="button" role="tab">
+                            <i class="fas fa-project-diagram me-2"></i>Clustering & Segmentation
+                        </button>
+                    </li>
                 </ul>
                 
                 <!-- Tab Content -->
@@ -822,6 +827,130 @@
                             </div>
                         </div>
                     </div>
+                    <div class="tab-pane fade" id="clustering" role="tabpanel">
+                        <div class="card mt-4">
+                            <div class="card-header bg-dark text-white">
+                                <h5 class="mb-0"><i class="fas fa-project-diagram me-2"></i>Clustering & Segmentation</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="nav nav-tabs mt-2" id="clusteringTabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="store-clustering-tab" data-bs-toggle="tab" data-bs-target="#store-clustering" type="button" role="tab">
+                                            <i class="fas fa-store me-2"></i>Store Clustering
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="product-clustering-tab" data-bs-toggle="tab" data-bs-target="#product-clustering" type="button" role="tab">
+                                            <i class="fas fa-box me-2"></i>Product Clustering
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="city-clustering-tab" data-bs-toggle="tab" data-bs-target="#city-clustering" type="button" role="tab">
+                                            <i class="fas fa-city me-2"></i>City Clustering
+                                        </button>
+                                    </li>
+                                </ul>
+                                <div class="tab-content" id="clusteringTabContent">
+                                    <!-- Store Clustering Tab -->
+                                    <div class="tab-pane fade show active" id="store-clustering" role="tabpanel">
+                                        <div class="row mb-3 mt-3">
+                                            <div class="col-md-3">
+                                                <label for="storeClusteringAlgorithm" class="form-label">Algorithm</label>
+                                                <select class="form-select" id="storeClusteringAlgorithm">
+                                                    <option value="kmeans">K-Means</option>
+                                                    <option value="dbscan">DBSCAN</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="storeClusteringFeatures" class="form-label">Features</label>
+                                                <select class="form-select" id="storeClusteringFeatures" multiple>
+                                                    <option value="demand_profile" selected>Demand Profile</option>
+                                                    <option value="stockout_rate" selected>Stockout Rate</option>
+                                                    <option value="discount_response">Discount Response</option>
+                                                    <option value="weather_sensitivity">Weather Sensitivity</option>
+                                                </select>
+                                                <small class="text-muted">Hold Ctrl/Cmd to select multiple</small>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="storeClusteringNClusters" class="form-label"># Clusters</label>
+                                                <input type="number" class="form-control" id="storeClusteringNClusters" min="2" max="10" value="3">
+                                            </div>
+                                            <div class="col-md-3 d-flex align-items-end">
+                                                <button class="btn btn-success w-100" onclick="runStoreClustering()">
+                                                    <i class="fas fa-play me-2"></i>Run Store Clustering
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div id="storeClusteringResults"></div>
+                                    </div>
+                                    <!-- Product Clustering Tab -->
+                                    <div class="tab-pane fade" id="product-clustering" role="tabpanel">
+                                        <div class="row mb-3 mt-3">
+                                            <div class="col-md-3">
+                                                <label for="productClusteringAlgorithm" class="form-label">Algorithm</label>
+                                                <select class="form-select" id="productClusteringAlgorithm">
+                                                    <option value="kmeans">K-Means</option>
+                                                    <option value="dbscan">DBSCAN</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="productClusteringFeatures" class="form-label">Features</label>
+                                                <select class="form-select" id="productClusteringFeatures" multiple>
+                                                    <option value="demand_profile" selected>Demand Profile</option>
+                                                    <option value="stockout_rate" selected>Stockout Rate</option>
+                                                    <option value="discount_response">Discount Response</option>
+                                                    <option value="weather_sensitivity">Weather Sensitivity</option>
+                                                </select>
+                                                <small class="text-muted">Hold Ctrl/Cmd to select multiple</small>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="productClusteringNClusters" class="form-label"># Clusters</label>
+                                                <input type="number" class="form-control" id="productClusteringNClusters" min="2" max="10" value="3">
+                                            </div>
+                                            <div class="col-md-3 d-flex align-items-end">
+                                                <button class="btn btn-success w-100" onclick="runProductClustering()">
+                                                    <i class="fas fa-play me-2"></i>Run Product Clustering
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div id="productClusteringResults"></div>
+                                    </div>
+                                    <!-- City Clustering Tab -->
+                                    <div class="tab-pane fade" id="city-clustering" role="tabpanel">
+                                        <div class="row mb-3 mt-3">
+                                            <div class="col-md-3">
+                                                <label for="cityClusteringAlgorithm" class="form-label">Algorithm</label>
+                                                <select class="form-select" id="cityClusteringAlgorithm">
+                                                    <option value="kmeans">K-Means</option>
+                                                    <option value="dbscan">DBSCAN</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="cityClusteringFeatures" class="form-label">Features</label>
+                                                <select class="form-select" id="cityClusteringFeatures" multiple>
+                                                    <option value="demand_profile" selected>Demand Profile</option>
+                                                    <option value="stockout_rate" selected>Stockout Rate</option>
+                                                    <option value="discount_response">Discount Response</option>
+                                                    <option value="weather_sensitivity">Weather Sensitivity</option>
+                                                </select>
+                                                <small class="text-muted">Hold Ctrl/Cmd to select multiple</small>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label for="cityClusteringNClusters" class="form-label"># Clusters</label>
+                                                <input type="number" class="form-control" id="cityClusteringNClusters" min="2" max="10" value="3">
+                                            </div>
+                                            <div class="col-md-3 d-flex align-items-end">
+                                                <button class="btn btn-success w-100" onclick="runCityClustering()">
+                                                    <i class="fas fa-play me-2"></i>Run City Clustering
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div id="cityClusteringResults"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -859,6 +988,26 @@
                 </div>
                 <div class="modal-body">
                     <div id="productWeatherContent"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Promotional Alert Modal -->
+    <div class="modal fade" id="promotionalAlertModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-percent me-2"></i>Promotional Campaign Recommendations
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="promotionalAlertContent"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -1797,6 +1946,10 @@
                     displayPromotionalAnalysis(data.promotional_analysis);
                     displayBundleRecommendations(data.bundle_recommendations);
                     displaySeasonalInsights(data.seasonal_insights);
+                    
+                    // Show promotional alert pop-up
+                    showPromotionalAlert(data.promotional_analysis);
+
                 } else {
                     alert('Error generating weather forecast: ' + data.message);
                 }
@@ -1809,6 +1962,65 @@
             }
         }
         
+        function showPromotionalAlert(promotionalAnalysisData) {
+            const modal = new bootstrap.Modal(document.getElementById('promotionalAlertModal'));
+            const content = document.getElementById('promotionalAlertContent');
+            
+            if (!promotionalAnalysisData || promotionalAnalysisData.length === 0) {
+                content.innerHTML = '<div class="alert alert-info text-center">No promotional recommendations available at this time.</div>';
+                modal.show();
+                return;
+            }
+
+            let htmlContent = '';
+            promotionalAnalysisData.forEach(promo => {
+                const recommendationLevel = promo.recommendation.toLowerCase().includes('highly') ? 'highly-recommended' :
+                                          promo.recommendation.toLowerCase().includes('recommended') ? 'recommended' :
+                                          promo.recommendation.toLowerCase().includes('moderate') ? 'moderate' : 'not-recommended';
+                const alertClass = getRecommendationAlertClass(recommendationLevel);
+                const recommendationIcon = getRecommendationIcon(recommendationLevel);
+
+                htmlContent += `
+                    <div class="promotional-analysis-card ${recommendationLevel} mb-3">
+                        <div class="row">
+                            <div class="col-md-9">
+                                <h6>${promo.product_name} - ${promo.city_name} ${promo.store_name}</h6>
+                                <div class="mb-2">
+                                    <strong>Promotion:</strong> ${(promo.discount_percentage * 100).toFixed(0)}% discount for ${promo.promotion_duration_days} days
+                                </div>
+                                <div class="mb-2">
+                                    <strong>Expected Sales Increase:</strong> <span class="text-success">${(promo.expected_sales_increase * 100).toFixed(1)}%</span>
+                                </div>
+                                <div class="mb-2">
+                                    <strong>Revenue Impact:</strong> 
+                                    <span class="${promo.expected_revenue_impact >= 0 ? 'text-success' : 'text-danger'}">
+                                        $${promo.expected_revenue_impact.toFixed(2)}
+                                    </span>
+                                </div>
+                                <div class="small text-muted">
+                                    Weather Boost: ${promo.weather_boost_factor.toFixed(2)}x | 
+                                    Holiday Boost: ${promo.holiday_boost_factor.toFixed(2)}x
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-center d-flex flex-column justify-content-center align-items-center">
+                                <div class="h3 mb-2">${recommendationIcon}</div>
+                                <div class="fw-bold">${promo.recommendation}</div>
+                                <div class="small text-muted">${promo.optimal_timing || 'Any time'}</div>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <div class="alert alert-${alertClass} py-2 mb-0">
+                                ${promo.reasoning || 'No specific reasoning provided.'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            content.innerHTML = htmlContent;
+            modal.show();
+        }
+
         function displayWeatherSummary(data) {
             const container = document.getElementById('weatherSummaryCards');
             container.innerHTML = '';
@@ -2239,6 +2451,101 @@
             };
             return classes[level] || 'secondary';
         }
+
+        // --- Clustering & Segmentation Logic ---
+        async function runStoreClustering() {
+            await runClustering('stores', 'storeClusteringAlgorithm', 'storeClusteringFeatures', 'storeClusteringNClusters', 'storeClusteringResults');
+        }
+        async function runProductClustering() {
+            await runClustering('products', 'productClusteringAlgorithm', 'productClusteringFeatures', 'productClusteringNClusters', 'productClusteringResults');
+        }
+        async function runCityClustering() {
+            await runClustering('cities', 'cityClusteringAlgorithm', 'cityClusteringFeatures', 'cityClusteringNClusters', 'cityClusteringResults');
+        }
+        async function runClustering(entityType, algoId, featuresId, nClustersId, resultsId) {
+            const algorithm = document.getElementById(algoId).value;
+            const features = Array.from(document.getElementById(featuresId).selectedOptions).map(opt => opt.value);
+            const n_clusters = parseInt(document.getElementById(nClustersId).value);
+            const resultsDiv = document.getElementById(resultsId);
+            resultsDiv.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div><p>Running clustering analysis...</p></div>';
+            try {
+                const res = await fetch('/api/cluster-analysis', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        entity_type: entityType,
+                        clustering_algorithm: algorithm,
+                        n_clusters: n_clusters,
+                        features: features
+                    })
+                });
+                if (!res.ok) throw new Error('Clustering failed');
+                const data = await res.json();
+                renderClusteringResults(data, resultsDiv);
+            } catch (err) {
+                resultsDiv.innerHTML = `<div class='alert alert-danger'>Error: ${err.message}</div>`;
+            }
+        }
+        function renderClusteringResults(data, container) {
+            if (!data.success) {
+                container.innerHTML = `<div class='alert alert-danger'>Clustering failed: ${data.detail || 'Unknown error'}</div>`;
+                return;
+            }
+            let html = '';
+            html += `<div class='mb-3'><strong>Algorithm:</strong> ${data.algorithm_used} &nbsp; <strong>Clusters:</strong> ${data.n_clusters}</div>`;
+            // Cluster Quality Metrics
+            html += `<div class='mb-3'><strong>Quality Metrics:</strong> <ul>`;
+            for (const [k, v] of Object.entries(data.cluster_quality_metrics)) {
+                html += `<li>${k.replace(/_/g, ' ')}: <b>${typeof v === 'number' ? v.toFixed(3) : v}</b></li>`;
+            }
+            html += `</ul></div>`;
+            // Insights
+            if (data.insights && data.insights.length) {
+                html += `<div class='alert alert-info'><ul>` + data.insights.map(i => `<li>${i}</li>`).join('') + `</ul></div>`;
+            }
+            // Cluster Profiles
+            html += `<h6>Cluster Profiles</h6><div class='row'>`;
+            data.cluster_profiles.forEach(profile => {
+                html += `<div class='col-md-4 mb-3'><div class='card h-100'><div class='card-body'>`;
+                html += `<h6 class='card-title'>${profile.cluster_name}</h6>`;
+                html += `<div><b>Entities:</b> ${profile.entity_count}</div>`;
+                html += `<div><b>Key Metrics:</b><ul>`;
+                for (const [k, v] of Object.entries(profile.key_metrics)) {
+                    html += `<li>${k.replace(/_/g, ' ')}: <b>${typeof v === 'number' ? v.toFixed(2) : v}</b></li>`;
+                }
+                html += `</ul></div>`;
+                if (profile.representative_entities && profile.representative_entities.length) {
+                    html += `<div><b>Examples:</b><ul>`;
+                    profile.representative_entities.forEach(e => {
+                        html += `<li>${e.name} (${e.id})</li>`;
+                    });
+                    html += `</ul></div>`;
+                }
+                html += `</div></div></div>`;
+            });
+            html += `</div>`;
+            // Entity Assignments
+            html += `<h6>Entity Assignments</h6><div style='max-height:300px;overflow:auto;'><table class='table table-sm table-bordered'><thead><tr>`;
+            if (data.entity_assignments.length) {
+                Object.keys(data.entity_assignments[0]).forEach(k => {
+                    html += `<th>${k.replace(/_/g, ' ')}</th>`;
+                });
+            }
+            html += `</tr></thead><tbody>`;
+            data.entity_assignments.forEach(e => {
+                html += `<tr>`;
+                Object.values(e).forEach(v => {
+                    html += `<td>${typeof v === 'number' ? v.toFixed(2) : v}</td>`;
+                });
+                html += `</tr>`;
+            });
+            html += `</tbody></table></div>`;
+            // Recommendations
+            if (data.recommendations && data.recommendations.length) {
+                html += `<h6>Recommendations</h6><ul>` + data.recommendations.map(r => `<li><b>${r.title || r.action || r.recommendation_type}:</b> ${r.description || r.reason || ''} <span class='text-muted'>${r.expected_impact ? 'Impact: ' + r.expected_impact : ''}</span></li>`).join('') + `</ul>`;
+            }
+            container.innerHTML = html;
+        }
     </script>
 </body>
-</html> 
+</html>

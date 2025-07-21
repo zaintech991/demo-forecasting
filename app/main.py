@@ -35,6 +35,7 @@ def professional_dashboard():
 def enhanced_dashboard():
     return FileResponse("static/enhanced_index.html")
 
+
 # Serve enhanced multi-dimensional dashboard
 @app.get("/enhanced_multi_dimensional.html")
 def enhanced_multi_dimensional():
