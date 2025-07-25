@@ -1151,6 +1151,9 @@
                 </div>
             </div>
             
+            <!-- Notification Container (Top Right) -->
+            <div id="notificationContainer" style="position: fixed; top: 20px; right: 20px; z-index: 1050;"></div>
+            
             <!-- Stopwatch Display -->
             <div class="text-center mb-3" id="stopwatchDisplay" style="font-size: 1.2rem; font-weight: bold; color: #667eea; display: none;">
                 Processing time: <span id="elapsedTime">0.00</span> seconds
@@ -1662,7 +1665,7 @@
             let filteredStores = allStores;
             if (selectedCities.length > 0) {
                 const cityIds = selectedCities.map(c => c.id);
-                filteredStores = allStores.filter(store => cityIds.includes(store.city_id.toString()));
+                filteredStores = allStores.filter(store => cityIds.includes(parseInt(store.city_id)));
             }
             filteredStores.forEach(store => {
                     const option = document.createElement('option');
@@ -1718,7 +1721,7 @@
         function addCity() {
             console.log('addCity called');
             const citySelect = document.getElementById('citySelect');
-            const cityId = citySelect.value;
+            const cityId = parseInt(citySelect.value); // Convert to integer
             const cityName = citySelect.options[citySelect.selectedIndex].text;
             if (cityId && !selectedCities.find(c => c.id === cityId)) {
                 selectedCities.push({id: cityId, name: cityName});
@@ -1738,7 +1741,7 @@
         }
         function addStore() {
             const storeSelect = document.getElementById('storeSelect');
-            const storeId = storeSelect.value;
+            const storeId = parseInt(storeSelect.value); // Convert to integer
             const storeName = storeSelect.options[storeSelect.selectedIndex].text;
             if (storeId && !selectedStores.find(s => s.id === storeId)) {
                 selectedStores.push({id: storeId, name: storeName});
@@ -1756,7 +1759,7 @@
         }
         function addProduct() {
             const productSelect = document.getElementById('productSelect');
-            const productId = productSelect.value;
+            const productId = parseInt(productSelect.value); // Convert to integer
             const productName = productSelect.options[productSelect.selectedIndex].text;
             if (productId && !selectedProducts.find(p => p.id === productId)) {
                 selectedProducts.push({id: productId, name: productName});
@@ -1818,6 +1821,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             loadDropdownData();
             setupEventListeners();
+            connectWebSocket(); // Establish WebSocket connection on page load
         });
         
         function setupEventListeners() {
@@ -1895,8 +1899,8 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        city_ids: selectedCities.map(c => c.id),
-                        store_ids: selectedStores.map(s => s.id),
+                        city_ids: selectedCities.map(c => String(c.id)),
+                        store_ids: selectedStores.map(s => String(s.id)),
                         product_ids: selectedProducts.map(p => parseInt(p.id)),
                         forecast_days: forecastDays,
                         include_insights: true,
@@ -3813,16 +3817,15 @@
         let inventoryRecPollingInterval = null;
 
         function startInventoryRecommendationPolling() {
-            // Stop any previous polling
-            if (inventoryRecPollingInterval) clearInterval(inventoryRecPollingInterval);
-            // Immediately fetch once
-            fetchAndDisplayInventoryRecommendations();
-            // Poll every 30 seconds
-            inventoryRecPollingInterval = setInterval(fetchAndDisplayInventoryRecommendations, 30000);
+            // Initial fetch
+            // fetchAndDisplayInventoryRecommendations(); // Removed to prevent immediate execution
+            // Set interval for periodic updates (every 30 seconds)
+            // inventoryRecPollingInterval = setInterval(fetchAndDisplayInventoryRecommendations, 30000); // Removed to prevent continuous polling
         }
 
         function stopInventoryRecommendationPolling() {
-            if (inventoryRecPollingInterval) clearInterval(inventoryRecPollingInterval);
+            // clearInterval(inventoryRecPollingInterval); // Removed to match removal of setInterval
+            // inventoryRecPollingInterval = null;
         }
 
         async function fetchAndDisplayInventoryRecommendations() {
@@ -3875,13 +3878,15 @@
         let demandInsightsPollingInterval = null;
 
         function startDemandInsightsPolling() {
-            if (demandInsightsPollingInterval) clearInterval(demandInsightsPollingInterval);
-            fetchAndDisplayDemandInsights();
-            demandInsightsPollingInterval = setInterval(fetchAndDisplayDemandInsights, 30000);
+            // Initial fetch
+            // fetchAndDisplayDemandInsights(); // Removed to prevent immediate execution
+            // Set interval for periodic updates (every 30 seconds)
+            // demandInsightsPollingInterval = setInterval(fetchAndDisplayDemandInsights, 30000); // Removed to prevent continuous polling
         }
 
         function stopDemandInsightsPolling() {
-            if (demandInsightsPollingInterval) clearInterval(demandInsightsPollingInterval);
+            // clearInterval(demandInsightsPollingInterval); // Removed to match removal of setInterval
+            // demandInsightsPollingInterval = null;
         }
 
         async function fetchAndDisplayDemandInsights() {
@@ -3995,6 +4000,78 @@
                 });
                 document.getElementById('storeClusteringResults').appendChild(recsRow);
             }
+        }
+
+        // WebSocket for real-time notifications
+        let ws = null;
+
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const ws_url = `${protocol}//${window.location.host}/ws`;
+            ws = new WebSocket(ws_url);
+
+            ws.onopen = (event) => {
+                console.log("WebSocket connected!", event);
+            };
+
+            ws.onmessage = (event) => {
+                console.log("WebSocket message received:", event.data);
+                showNotification(event.data);
+            };
+
+            ws.onclose = (event) => {
+                console.log("WebSocket disconnected:", event);
+                // Attempt to reconnect after a delay
+                setTimeout(connectWebSocket, 5000);
+            };
+
+            ws.onerror = (error) => {
+                console.error("WebSocket error:", error);
+                ws.close();
+            };
+        }
+
+        function showNotification(message) {
+            const notificationContainer = document.getElementById('notificationContainer');
+            const notificationId = `notification-${Date.now()}`;
+            let alertClass = 'alert-info'; // Default
+            let iconClass = 'fas fa-info-circle';
+
+            if (message.includes("successfully") || message.includes("complete")) {
+                alertClass = 'alert-success';
+                iconClass = 'fas fa-check-circle';
+            } else if (message.includes("failed") || message.includes("error") || message.includes("Alert")) {
+                alertClass = 'alert-danger';
+                iconClass = 'fas fa-exclamation-circle';
+            } else if (message.includes("Insight") || message.includes("Analyzing")) {
+                alertClass = 'alert-primary'; // Use primary for insights
+                iconClass = 'fas fa-lightbulb';
+            } else if (message.includes("Getting") || message.includes("Fetching") || message.includes("Generating")) {
+                alertClass = 'alert-info';
+                iconClass = 'fas fa-sync-alt';
+            }
+
+            const notificationHtml = `
+                <div id="${notificationId}" class="alert ${alertClass} alert-dismissible fade show animate-in" role="alert" style="width: 350px;">
+                    <i class="${iconClass} me-2"></i>
+                    ${message.replace("Notification: ", "").replace("Insight for Sales Forecast: ", "Insight: ").replace("Alert for Demand Forecast: ", "Alert: ")}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+            
+            const newNotification = document.createElement('div');
+            newNotification.innerHTML = notificationHtml;
+            notificationContainer.prepend(newNotification); // Add to top
+
+            // Auto-hide after 10 seconds
+            setTimeout(() => {
+                const alertElement = document.getElementById(notificationId);
+                if (alertElement) {
+                    alertElement.classList.remove('show');
+                    alertElement.classList.add('animate-out');
+                    alertElement.addEventListener('animationend', () => alertElement.remove());
+                }
+            }, 10000);
         }
     </script>
     <!-- Ensure global scope for addCity and related functions -->

@@ -189,6 +189,22 @@ async def demand_forecast(request_body: dict, request: Request):
                 inventory_status, demand_forecasts, stockout_risk_analysis
             )
 
+            # --- WebSocket Notification ---
+            try:
+                websocket_manager = getattr(request.app.state, 'websocket_manager', None)
+                if websocket_manager:
+                    # Compose a useful demand/stockout notification
+                    if demand_insights:
+                        top_alert = demand_insights[0]
+                        msg = f"Alert for Demand Forecast: {top_alert.urgency_level.upper()} - {top_alert.product_name} in {top_alert.location} ({top_alert.store_name}): {top_alert.recommended_action}"
+                    elif inventory_status:
+                        msg = f"Demand Forecast: {len(inventory_status)} products analyzed."
+                    else:
+                        msg = "Demand Forecast: No insights available."
+                    await websocket_manager.broadcast(msg)
+            except Exception as ws_exc:
+                logger.warning(f"WebSocket notification failed: {ws_exc}")
+
             return DemandForecastResponse(
                 success=True,
                 inventory_status=inventory_status,
@@ -263,9 +279,9 @@ async def get_inventory_status(
                             product_name=location_info.get(
                                 "product_name", f"Product {product_id}"
                             ),
-                            city_id=city_id,
+                            city_id=str(city_id),
                             city_name=location_info.get("city_name", f"City {city_id}"),
-                            store_id=store_id,
+                            store_id=str(store_id),
                             store_name=location_info.get(
                                 "store_name", f"Store {store_id}"
                             ),
@@ -1440,10 +1456,10 @@ async def get_valid_products(request_body: dict, request: Request):
             # Build query based on selections
             where_conditions = []
             if city_ids:
-                city_list = "','".join(city_ids)
+                city_list = "','".join(str(cid) for cid in city_ids)
                 where_conditions.append(f"sd.city_id IN ('{city_list}')")
             if store_ids:
-                store_list = "','".join(store_ids)
+                store_list = "','".join(str(sid) for sid in store_ids)
                 where_conditions.append(f"sd.store_id IN ('{store_list}')")
 
             where_clause = " AND ".join(where_conditions) if where_conditions else "1=1"
@@ -1604,6 +1620,22 @@ async def multi_dimensional_forecast(request_body: MultiDimensionalForecastReque
 
             # Generate summary
             summary = generate_forecast_summary(forecast_results, insights)
+
+            # --- WebSocket Notification ---
+            try:
+                websocket_manager = getattr(request.app.state, 'websocket_manager', None)
+                if websocket_manager:
+                    # Compose a useful sales forecast notification
+                    if insights:
+                        top_insight = insights[0]
+                        msg = f"Insight for Sales Forecast: {top_insight.product_name} in {top_insight.location} ({top_insight.store_name}): {top_insight.recommendation} (Growth: {top_insight.growth_rate:.1f}%, Confidence: {top_insight.confidence_score:.1f}%)"
+                    elif summary and summary.get('total_combinations', 0) > 0:
+                        msg = f"Sales Forecast: {summary['total_combinations']} combinations analyzed."
+                    else:
+                        msg = "Sales Forecast: No insights available."
+                    await websocket_manager.broadcast(msg)
+            except Exception as ws_exc:
+                logger.warning(f"WebSocket notification failed: {ws_exc}")
 
             return MultiDimensionalForecastResponse(
                 success=True,
@@ -2652,6 +2684,23 @@ async def weather_holiday_forecast(request_body: dict, request: Request):
                 conn, city_ids, store_ids, product_ids
             )
 
+            # --- WebSocket Notification ---
+            try:
+                websocket_manager = getattr(request.app.state, 'websocket_manager', None)
+                if websocket_manager:
+                    # Compose a useful weather/promotional notification
+                    if promotional_analysis:
+                        top_promo = promotional_analysis[0]
+                        msg = f"Weather/Promo Insight: {top_promo.product_name} in {top_promo.city_name} ({top_promo.store_name}): {top_promo.recommendation} (Uplift: {top_promo.expected_sales_increase*100:.1f}%, Revenue: ${top_promo.expected_revenue_impact:.2f})"
+                    elif current_weather_recommendations:
+                        top_weather = current_weather_recommendations[0]
+                        msg = f"Weather Impact: {top_weather.product_name} in {top_weather.city_name} ({top_weather.store_name}): {top_weather.reasoning}"
+                    else:
+                        msg = "Weather/Holiday Forecast: No insights available."
+                    await websocket_manager.broadcast(msg)
+            except Exception as ws_exc:
+                logger.warning(f"WebSocket notification failed: {ws_exc}")
+
             return WeatherHolidayForecastResponse(
                 success=True,
                 current_weather_recommendations=current_weather_recommendations,
@@ -3016,9 +3065,9 @@ async def generate_weather_recommendation_for_product(
         return WeatherRecommendation(
             product_id=product_id,
             product_name=location_info.get("product_name", f"Product {product_id}"),
-            city_id=location_info.get("city_id", "0"),
+            city_id=str(location_info.get("city_id", "0")),
             city_name=location_info.get("city_name", "Unknown City"),
-            store_id=location_info.get("store_id", "0"),
+            store_id=str(location_info.get("store_id", "0")),
             store_name=location_info.get("store_name", "Unknown Store"),
             current_weather=current_weather,
             recommendation_type=recommendation_type,
@@ -3033,9 +3082,9 @@ async def generate_weather_recommendation_for_product(
         return WeatherRecommendation(
             product_id=product_id,
             product_name=location_info.get("product_name", f"Product {product_id}"),
-            city_id=location_info.get("city_id", "0"),
+            city_id=str(location_info.get("city_id", "0")),
             city_name=location_info.get("city_name", "Unknown City"),
-            store_id=location_info.get("store_id", "0"),
+            store_id=str(location_info.get("store_id", "0")),
             store_name=location_info.get("store_name", "Unknown Store"),
             current_weather=current_weather,
             recommendation_type="normal",
@@ -3179,9 +3228,9 @@ async def analyze_promotional_impact(
                             product_name=location_info.get(
                                 "product_name", f"Product {product_id}"
                             ),
-                            city_id=city_id,
+                            city_id=str(city_id),
                             city_name=location_info.get("city_name", "Unknown City"),
-                            store_id=store_id,
+                            store_id=str(store_id),
                             store_name=location_info.get("store_name", "Unknown Store"),
                             discount_percentage=discount_percentage,
                             promotion_duration_days=promotion_duration,

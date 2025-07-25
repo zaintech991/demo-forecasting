@@ -89,7 +89,9 @@ class DatabaseManager:
 
     def cache_key(self, query: str, params: tuple = ()) -> str:
         """Generate cache key for query and parameters"""
-        key = f"{hash(query)}_{hash(params)}"
+        # Convert any list within params to tuple to make it hashable
+        hashable_params = tuple(tuple(p) if isinstance(p, list) else p for p in params)
+        key = f"{hash(query)}_{hash(hashable_params)}"
         logger.debug(f"Generated cache key for query: {query[:50]}... with params: {params} -> {key}")
         return key
 
@@ -245,17 +247,17 @@ class DatabaseManager:
         param_count = 1
 
         if store_ids:
-            conditions.append(f"sd.store_id = ANY(${{{param_count}}})")
+            conditions.append("sd.store_id = ANY($" + str(param_count) + ")")
             params.append(store_ids)
             param_count += 1
 
         if product_ids:
-            conditions.append(f"sd.product_id = ANY(${{{param_count}}})")
+            conditions.append("sd.product_id = ANY($" + str(param_count) + ")")
             params.append(product_ids)
             param_count += 1
 
         if city_ids:
-            conditions.append(f"sd.city_id = ANY(${{{param_count}}})")
+            conditions.append("sd.city_id = ANY($" + str(param_count) + ")")
             params.append(city_ids)
             param_count += 1
 
@@ -303,7 +305,7 @@ class DatabaseManager:
         param_count = 1
 
         if store_ids:
-            conditions.append(f"spm.store_id = ANY(${{{param_count}}})")
+            conditions.append("spm.store_id = ANY($" + str(param_count) + ")")
             params.append(store_ids)
             param_count += 1
 
@@ -350,12 +352,12 @@ class DatabaseManager:
         param_count = 3
 
         if store_id:
-            query += f" AND (pc.store_id = ${{param_count}} OR pc.store_id IS NULL)"
+            query += " AND (pc.store_id = $" + str(param_count) + " OR pc.store_id IS NULL)"
             params.append(store_id)
             param_count += 1
 
         if correlation_types:
-            query += f" AND pc.correlation_type = ANY(${{{param_count}}})"
+            query += " AND pc.correlation_type = ANY($" + str(param_count) + ")"
             params.append(correlation_types)
             param_count += 1
 
@@ -409,12 +411,12 @@ class DatabaseManager:
         param_count = 1
 
         if product_ids:
-            conditions.append(f"wia.product_id = ANY(${{{param_count}}})")
+            conditions.append("wia.product_id = ANY($" + str(param_count) + ")")
             params.append(product_ids)
             param_count += 1
 
         if city_ids:
-            conditions.append(f"wia.city_id = ANY(${{{param_count}}})")
+            conditions.append("wia.city_id = ANY($" + str(param_count) + ")")
             params.append(city_ids)
             param_count += 1
 
@@ -466,12 +468,12 @@ class DatabaseManager:
         param_count = 1
 
         if store_ids:
-            conditions.append(f"se.store_id = ANY(${{{param_count}}})")
+            conditions.append("se.store_id = ANY($" + str(param_count) + ")")
             params.append(store_ids)
             param_count += 1
 
         if product_ids:
-            conditions.append(f"se.product_id = ANY(${{{param_count}}})")
+            conditions.append("se.product_id = ANY($" + str(param_count) + ")")
             params.append(product_ids)
             param_count += 1
 
@@ -527,12 +529,12 @@ class DatabaseManager:
         param_count = 1
 
         if store_ids:
-            conditions.append(f"pe.store_id = ANY(${{{param_count}}})")
+            conditions.append("pe.store_id = ANY($" + str(param_count) + ")")
             params.append(store_ids)
             param_count += 1
 
         if product_ids:
-            conditions.append(f"pe.product_id = ANY(${{{param_count}}})")
+            conditions.append("pe.product_id = ANY($" + str(param_count) + ")")
             params.append(product_ids)
             param_count += 1
 
@@ -811,8 +813,20 @@ def cached(ttl: int = 300):
             if 'request' in kwargs and isinstance(kwargs['request'], Request):
                 request = kwargs['request']
             
-            if request is None or not hasattr(request.app.state, 'db_manager'):
-                logger.warning("Request or db_manager not found in app.state. Caching disabled.")
+            # If request is None (e.g., during startup, internal calls), bypass caching and proceed
+            if request is None:
+                logger.debug(f"Request object is None in @cached for {func.__name__}. Bypassing cache and directly executing function.")
+                return await func(*args, **kwargs)
+
+            # Now that we know request is not None, we can safely access its attributes
+            # If it's not an HTTP request (e.g., ASGI lifespan, background task), bypass caching
+            if request.scope is None or not hasattr(request.scope, 'type') or request.scope['type'] != 'http':
+                logger.debug(f"Bypassing cache for non-HTTP request (scope type is not 'http') to {func.__name__}")
+                return await func(*args, **kwargs)
+
+            # CRITICAL: Also bypass if db_manager is not yet available in app.state (e.g., during startup before app.on_event runs)
+            if not hasattr(request.app.state, 'db_manager') or request.app.state.db_manager is None:
+                logger.warning(f"db_manager not found or is None in app.state for {func.__name__}. Bypassing cache for this request.")
                 return await func(*args, **kwargs)
 
             manager = request.app.state.db_manager
