@@ -429,6 +429,46 @@
             margin: 2rem 0;
         }
         
+        /* Product Sales Chart Styles */
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        }
+        
+        #productFilterControls {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #e0e6ed;
+        }
+        
+        #productFilterControls .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+        
+        #productFilterControls .form-select {
+            border-radius: 8px;
+            border: 2px solid #e0e6ed;
+            transition: border-color 0.2s;
+        }
+        
+        #productFilterControls .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px #667eea33;
+        }
+        
+        .btn-group .btn {
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn-group .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
         .loading-spinner {
             display: none;
             text-align: center;
@@ -1214,6 +1254,68 @@
                         <!-- Forecast Chart -->
                         <div class="chart-container">
                             <canvas id="forecastChart"></canvas>
+                        </div>
+                        
+                        <!-- Product Sales by City-Store Chart -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="card shadow-sm">
+                                    <div class="card-header bg-gradient-primary text-white">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0">
+                                                <i class="fas fa-chart-bar me-2"></i>
+                                                Product Sales by City-Store
+                                            </h5>
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-outline-light" id="viewAllBtn">
+                                                    <i class="fas fa-eye me-1"></i>View All
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-light" id="filterBtn">
+                                                    <i class="fas fa-filter me-1"></i>Filter
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <!-- Filter Controls (initially hidden) -->
+                                        <div id="productFilterControls" class="mb-3" style="display: none;">
+                                            <div class="row g-3">
+                                                <div class="col-md-4">
+                                                    <label class="form-label">Filter by Products:</label>
+                                                    <select class="form-select" id="productFilter" multiple>
+                                                        <!-- Products will be populated here -->
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label">Filter by Cities:</label>
+                                                    <select class="form-select" id="cityFilter" multiple>
+                                                        <!-- Cities will be populated here -->
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label">Filter by Stores:</label>
+                                                    <select class="form-select" id="storeFilter" multiple>
+                                                        <!-- Stores will be populated here -->
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="mt-3">
+                                                <button type="button" class="btn btn-primary btn-sm" id="applyFilterBtn">
+                                                    <i class="fas fa-check me-1"></i>Apply Filters
+                                                </button>
+                                                <button type="button" class="btn btn-secondary btn-sm ms-2" id="resetFilterBtn">
+                                                    <i class="fas fa-undo me-1"></i>Reset
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Chart Container -->
+                                        <div class="chart-container">
+                                            <canvas id="productSalesChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
                         <!-- Insights Section -->
@@ -2007,6 +2109,9 @@
             
             // Display forecast chart
             displayForecastChart(data.forecast_data);
+            
+            // Display product sales chart
+            displayProductSalesChart(data.forecast_data);
             
             // Display insights
             displayInsights(data.insights);
@@ -2861,6 +2966,248 @@
                             title: {
                                 display: true,
                                 text: 'Date'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Global variables for product sales chart
+        let productSalesChart = null;
+        let currentForecastData = null;
+        let filteredData = null;
+        
+        function displayProductSalesChart(forecastData) {
+            currentForecastData = forecastData;
+            filteredData = forecastData;
+            
+            // Populate filter dropdowns
+            populateFilterDropdowns(forecastData);
+            
+            // Display default chart with all selected data
+            updateProductSalesChart(forecastData);
+            
+            // Set up event listeners
+            setupProductChartEventListeners();
+        }
+        
+        function populateFilterDropdowns(forecastData) {
+            const combinations = forecastData.combinations || [];
+            
+            // Extract unique products, cities, and stores
+            const products = [...new Set(combinations.map(c => c.product_name).filter(Boolean))];
+            const cities = [...new Set(combinations.map(c => c.city_name).filter(Boolean))];
+            const stores = [...new Set(combinations.map(c => c.store_name).filter(Boolean))];
+            
+            // Populate product filter
+            const productFilter = document.getElementById('productFilter');
+            productFilter.innerHTML = '';
+            products.forEach(product => {
+                const option = document.createElement('option');
+                option.value = product;
+                option.textContent = product;
+                productFilter.appendChild(option);
+            });
+            
+            // Populate city filter
+            const cityFilter = document.getElementById('cityFilter');
+            cityFilter.innerHTML = '';
+            cities.forEach(city => {
+                const option = document.createElement('option');
+                option.value = city;
+                option.textContent = city;
+                cityFilter.appendChild(option);
+            });
+            
+            // Populate store filter
+            const storeFilter = document.getElementById('storeFilter');
+            storeFilter.innerHTML = '';
+            stores.forEach(store => {
+                const option = document.createElement('option');
+                option.value = store;
+                option.textContent = store;
+                storeFilter.appendChild(option);
+            });
+        }
+        
+        function setupProductChartEventListeners() {
+            // Filter button
+            document.getElementById('filterBtn').addEventListener('click', function() {
+                const controls = document.getElementById('productFilterControls');
+                controls.style.display = controls.style.display === 'none' ? 'block' : 'none';
+            });
+            
+            // View all button
+            document.getElementById('viewAllBtn').addEventListener('click', function() {
+                updateProductSalesChart(currentForecastData);
+                document.getElementById('productFilterControls').style.display = 'none';
+            });
+            
+            // Apply filter button
+            document.getElementById('applyFilterBtn').addEventListener('click', function() {
+                applyProductFilters();
+            });
+            
+            // Reset filter button
+            document.getElementById('resetFilterBtn').addEventListener('click', function() {
+                resetProductFilters();
+            });
+        }
+        
+        function applyProductFilters() {
+            const selectedProducts = Array.from(document.getElementById('productFilter').selectedOptions).map(opt => opt.value);
+            const selectedCities = Array.from(document.getElementById('cityFilter').selectedOptions).map(opt => opt.value);
+            const selectedStores = Array.from(document.getElementById('storeFilter').selectedOptions).map(opt => opt.value);
+            
+            let filteredCombinations = currentForecastData.combinations || [];
+            
+            // Apply filters
+            if (selectedProducts.length > 0) {
+                filteredCombinations = filteredCombinations.filter(c => selectedProducts.includes(c.product_name));
+            }
+            if (selectedCities.length > 0) {
+                filteredCombinations = filteredCombinations.filter(c => selectedCities.includes(c.city_name));
+            }
+            if (selectedStores.length > 0) {
+                filteredCombinations = filteredCombinations.filter(c => selectedStores.includes(c.store_name));
+            }
+            
+            filteredData = {
+                ...currentForecastData,
+                combinations: filteredCombinations
+            };
+            
+            updateProductSalesChart(filteredData);
+        }
+        
+        function resetProductFilters() {
+            document.getElementById('productFilter').selectedIndex = -1;
+            document.getElementById('cityFilter').selectedIndex = -1;
+            document.getElementById('storeFilter').selectedIndex = -1;
+            updateProductSalesChart(currentForecastData);
+        }
+        
+        function updateProductSalesChart(forecastData) {
+            const ctx = document.getElementById('productSalesChart').getContext('2d');
+            
+            if (productSalesChart) {
+                productSalesChart.destroy();
+            }
+            
+            const combinations = forecastData.combinations || [];
+            
+            if (!combinations.length) {
+                console.error('No combination data available for product sales chart');
+                return;
+            }
+            
+            // Create a bar chart showing product sales by city-store
+            const labels = [];
+            const datasets = [];
+            const colors = [
+                'rgb(102, 126, 234)',
+                'rgb(255, 99, 132)', 
+                'rgb(54, 162, 235)',
+                'rgb(255, 205, 86)',
+                'rgb(75, 192, 192)',
+                'rgb(153, 102, 255)',
+                'rgb(255, 159, 64)',
+                'rgb(199, 199, 199)'
+            ];
+            
+            // Group by product and calculate total sales for each city-store combination
+            const productData = {};
+            combinations.forEach(combo => {
+                const productKey = combo.product_name || 'Unknown Product';
+                const locationKey = `${combo.city_name} - ${combo.store_name}`;
+                
+                if (!productData[productKey]) {
+                    productData[productKey] = {};
+                }
+                
+                if (!productData[productKey][locationKey]) {
+                    productData[productKey][locationKey] = 0;
+                }
+                
+                productData[productKey][locationKey] += combo.forecast.total_predicted || 0;
+            });
+            
+            // Create datasets for each product
+            let colorIndex = 0;
+            const allLocations = [...new Set(combinations.map(c => `${c.city_name} - ${c.store_name}`))];
+            
+            Object.entries(productData).forEach(([product, locations]) => {
+                const data = [];
+                
+                // Create data array for all locations, filling with 0 for missing combinations
+                allLocations.forEach(location => {
+                    data.push(locations[location] || 0);
+                });
+                
+                datasets.push({
+                    label: product,
+                    data: data,
+                    backgroundColor: colors[colorIndex % colors.length].replace('rgb', 'rgba').replace(')', ', 0.8)'),
+                    borderColor: colors[colorIndex % colors.length],
+                    borderWidth: 1,
+                    borderRadius: 4
+                });
+                
+                colorIndex++;
+            });
+            
+            productSalesChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: allLocations,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Product Sales by City-Store',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            enabled: true,
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    const dataset = context.dataset;
+                                    const value = context.parsed.y;
+                                    return `${dataset.label}: $${value.toFixed(2)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Sales Amount ($)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'City - Store'
+                            },
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45
                             }
                         }
                     }
